@@ -20,7 +20,28 @@
 					<el-button class="ann" type="primary" @click="modify_name('form')">提 交</el-button>
 				</div>
 			</el-dialog>
-
+			
+			<!-- 设置新的支付密码 -->
+			<el-button class="btn" type="info" plain @click="dfvc = true">
+				<span>更改支付密码</span>
+				<i class="el-icon-arrow-right"></i>
+			</el-button>
+			<el-dialog class="dialogc" width="85%" title="更改支付密码" :visible.sync="dfvc" append-to-body>
+				<el-form :model="ruleForm1" :rules="rules" ref="ruleForm1" label-width="90px" class="demo-ruleForm1">
+					<el-form-item label="新密码:" prop="new_transaction">
+						<el-input id="new_transaction" ref="new_transaction" v-model="ruleForm1.new_transaction" placeholder="请输入新密码" clearable show-password></el-input>
+					</el-form-item>
+					<el-form-item id="code" label="确认密码:" prop="confirm_transaction">
+						<el-input id="confirm_transaction" ref="confirm_transaction" v-model="ruleForm1.confirm_transaction" placeholder="请输入确认密码"
+						 clearable show-password></el-input>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button class="ann" type="warning" @click="resetForm('ruleForm1')">重 置</el-button>
+					<el-button class="ann" type="primary" @click="setc('ruleForm1')">修 改</el-button>
+				</span>
+			</el-dialog>
+			
 			<el-button class="btn" type="info" plain @click="outerVisible = true">
 				<span>更改手机号码</span>
 				<i class="el-icon-arrow-right"></i>
@@ -93,10 +114,19 @@
 <script>
 	export default {
 		data() {
-			var validatePass = (rule, value, callback) => {
+			var validatePass1 = (rule, value, callback) => {
 				if (value === '') {
 					callback(new Error('请再次输入密码'));
 				} else if (value !== this.ruleForm3.new_password) {
+					callback(new Error('两次输入密码不一致!'));
+				} else {
+					callback();
+				}
+			};
+			var validatePass2 = (rule, value, callback) => {
+				if (value === '') {
+					callback(new Error('请再次输入密码'));
+				} else if (value !== this.ruleForm1.new_transaction) {
 					callback(new Error('两次输入密码不一致!'));
 				} else {
 					callback();
@@ -106,6 +136,7 @@
 				outerVisible: false,
 				dialogVisible: false,
 				dialogFormVisible: false,
+				dfvc: false,
 				form: {
 					new_username: '',
 					name: '',
@@ -189,7 +220,23 @@
 					],
 					confirm_password: [{
 						required: true,
-						validator: validatePass,
+						validator: validatePass1,
+						trigger: 'blur'
+					}],
+					new_transaction: [{
+							required: true,
+							message: '请输入新的支付密码',
+							trigger: 'blur'
+						},
+						{
+							pattern: /^[0-9]{6}$/,
+							message: '请输入6位数的支付密码',
+							trigger: 'blur'
+						}
+					],
+					confirm_transaction: [{
+						required: true,
+						validator: validatePass2,
 						trigger: 'blur'
 					}],
 				},
@@ -197,6 +244,10 @@
 				innerVisible: false,
 				timer: null,
 				count: '获取',
+				ruleForm1: {
+					new_transaction: "",
+					confirm_transaction: "",
+				},
 				ruleForm2: {
 					phone: "",
 					code: "",
@@ -221,6 +272,32 @@
 						console.log(this.$refs.new_username.value);
 						this.dialogFormVisible = false;
 						this.$refs[form].resetFields();
+					} else {
+						console.log('error submit!!');
+						return false;
+					}
+				})
+			},
+			
+			//修改密码
+			setc(formName1) {
+				// 密码加密
+				let sha256 = require("js-sha256").sha256;
+				this.n_t = sha256(this.$refs.new_transaction.value);
+			
+				//提交
+				this.$refs[formName1].validate((valid) => {
+					if (valid) {
+						console.log(this.n_t);
+						this.$notify({
+							title: '成功',
+							message: '密码修改成功',
+							type: 'success'
+						});
+			
+						//密码修改成功后退出修改密码页 并提示修改密码完成
+						this.dfvc = false;
+						this.$refs[formName1].resetFields();
 					} else {
 						console.log('error submit!!');
 						return false;
@@ -399,7 +476,7 @@
 		}
 	}
 
-	#code1,
+	#code, #code1,
 	#code2 {
 		position: relative;
 		margin-top: 20px;
