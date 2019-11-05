@@ -1,0 +1,24 @@
+/*图片预览 缩略图*/
+.el-upload-list--picture-card .el-upload-list__item {
+	overflow: hidden;
+	background-color: #fff;
+	border: 1px solid #c0ccda;
+	border-radius: 6px;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	width: 80px;
+	height: 80px;
+	margin: 0 8px 8px 0;
+	display: inline-block
+}
+.el-upload--picture-card {
+	background-color: #fbfdff;
+	border: 1px dashed #c0ccda;
+	border-radius: 6px;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	width: 80px;
+	height: 80px;
+	line-height: 78px;
+	vertical-align: top
+}
