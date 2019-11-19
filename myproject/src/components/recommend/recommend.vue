@@ -4,12 +4,11 @@
 			<el-header>推荐好友专区</el-header>
 			<div class="sub-title">
 
-				<!-- <el-divider content-position="center">获取推荐链接</el-divider> -->
 				<el-footer>
 					<div>获取推荐链接</div>
 				</el-footer>
 				<el-form class="demo-ruleForm">
-					<el-input id="c_url" class="c_url" value="http://lsj.cx/"></el-input>
+					<el-input id="c_url" class="c_url" v-model="url_img" value=""></el-input>
 					<el-button class="copy" type="primary" data-clipboard-target="#c_url" @click="copy" plain>复制</el-button>
 				</el-form>
 			</div>
@@ -18,12 +17,7 @@
 				<el-footer>
 					<div>获取推荐二维码</div>
 				</el-footer>
-				<div id="qrcode">
-					<canvas id="canvas" ref="canvas"></canvas>
-				</div>
-				<!-- <div>
-					<vue-qr id="vueqr" ref="vueqr" :logoSrc="config.logo" :text="config.value" :size="120" :margin="0"></vue-qr>
-				</div> -->
+				<el-image id="url_img" style="width: 50%; height: 50%;" :src="url_img"></el-image>
 				<el-button type="primary" @click="preserve()" plain>保存</el-button>
 			</div>
 			<div id="br"></div>
@@ -33,46 +27,22 @@
 				</el-footer>
 			</div>
 			<div id="br"></div>
-			<!-- <div class="sub-title">
-				<el-footer>
-					<div>查看我的下级人数</div>
-				</el-footer>
-			</div>
-			<div id="br"></div>
-			<el-footer>
-				<div>我已获得的推荐佣金</div>
-			</el-footer>
-			<el-menu :default-active="activeIndex1" class="el-menu-demo" mode="horizontal" @select="handleSelect"
-			 background-color="#808080" text-color="#fff" active-text-color="#ffd04b">
-				<el-menu-item index="1">当日</el-menu-item>
-				<el-menu-item index="2">本周</el-menu-item>
-				<el-menu-item index="3">本月</el-menu-item>
-				<el-menu-item index="4">全部</el-menu-item>
-			</el-menu>
-			<el-table :data="tableData10" border stripe style="width: 100%">
-				<el-table-column prop="date" label="推荐时间" width="180">
-				</el-table-column>
-				<el-table-column prop="ID" label="推荐ID" width="180">
-				</el-table-column>
-				<el-table-column ref="name1" prop="d_money" label="推荐佣金" width="180">
-				</el-table-column>
-			</el-table> -->
 			<el-footer>
 				<div>我已获得的推荐佣金</div>
 			</el-footer>
 			<div id="table">
-				<el-table class="table1" :data="tableData1" border>
-					<el-table-column prop="friends_message" label="我的下级人数" width="105" align="center">
+				<el-table :data="tableData1" border>
+					<el-table-column prop="todaySum" label="当日佣金" width="79" align="center">
 					</el-table-column>
-					<el-table-column prop="d_money" label="当日佣金" width="105" align="center">
+					<el-table-column prop="weekSum" label="本周佣金" width="79" align="center">
 					</el-table-column>
-					<el-table-column prop="w_money" label="本周佣金" width="105" align="center">
+					<el-table-column prop="monthSum" label="本月佣金" width="79" align="center">
+					</el-table-column>
+					<el-table-column prop="allSum" label="全部佣金" width="79" align="center">
 					</el-table-column>
 				</el-table>
-				<el-table class="table2" :data="tableData1" border>
-					<el-table-column ref="name1" prop="m_money" label="本月佣金" width="105" align="center">
-					</el-table-column>
-					<el-table-column ref="name1" prop="all_money" label="全部佣金" width="105" align="center">
+				<el-table :data="tableData" border>
+					<el-table-column prop="childrenNumber" label="我的下级人数" width="79" align="center">
 					</el-table-column>
 				</el-table>
 			</div>
@@ -87,12 +57,12 @@
 				<el-menu-item index="7">本月</el-menu-item>
 				<el-menu-item index="8">全部</el-menu-item>
 			</el-menu>
-			<el-table :data="tableData2" border stripe style="width: 100%">
-				<el-table-column prop="ranking" label="排名" width="180">
+			<el-table :data="tableData10" border stripe style="width: 100%">
+				<el-table-column prop="account" label="排名" width="180">
 				</el-table-column>
-				<el-table-column prop="ID" label="用户ID" width="180">
+				<el-table-column prop="nickname" label="用户ID" width="180">
 				</el-table-column>
-				<el-table-column ref="name2" prop="d_total" label="总佣金" width="180">
+				<el-table-column prop="totalmoney" label="收入金额" width="180">
 				</el-table-column>
 			</el-table>
 		</el-container>
@@ -109,71 +79,69 @@
 		},
 		data() {
 			return {
-				activeIndex1: '1',
 				activeIndex2: '5',
 				url_img: '',
+				tableData: [],
 				tableData1: [],
 				tableData10: [],
-				tableData2: [],
-				config: {
-					value: 'http://lsj.cx/',
-					logo:'https://avatars3.githubusercontent.com/u/5277268?s=460&v=4',
-				},
 			};
 		},
 		created() {
-			this.$axios.get('http://localhost:8081/test/city').then(res => {
-				if (res.data) {
-					let dat = res.data.cityList;
-					this.tableData1 = dat.slice(4, 5);
-					this.tableData10 = dat.slice(0, 10);
-					this.tableData2 = res.data.cityList;
-				}
+			let url = this.$http + "/getMyInfo";
+			let url1 = this.$http + "/getPersonStat";
+			let url10 = this.$http + "/getTotalStat";
+			let _token = localStorage.getItem("token");
+			this.$axios.get(url, {
+				params:{token: _token}
+			}).then((resp) => {
+				this.tableData.push(resp.data.data);
+			}).catch((err) => {
+				console.log("错误信息" + err);
 			})
-		},
-		mounted() {
-			let url = 'http://lsj.cx/';
-			this.useqrcode(url);
+			this.$axios.get(url1, {
+				params:{token: _token}
+			}).then((resp) => {
+				this.tableData1.push(resp.data.data);
+			}).catch((err) => {
+				console.log("错误信息" + err);
+			})
+			this.$axios.get(url10, {
+				params:{token: _token}
+			}).then((resp10) => {
+				let tableData10 = resp10.data.data;
+			}).catch((err) => {
+				console.log("错误信息" + err);
+			})
+			let urler = this.$http + "/getQrCode";
+			this.$axios.get(urler, {
+				params: {token: _token}
+			}).then((res) => {
+				this.url_img = res.data.data;
+				let res_token = res.data.token;
+				localStorage.setItem("token", res_token);
+			}).catch((err) => {
+				console.log("错误信息" + err);
+			})
 		},
 		methods: {
 			handleSelect(key, keyPath) {
 				switch (parseInt(key)) {
-					case 1:
-						this.$refs.name1.prop = "d_money";
-						break;
-					case 2:
-						this.$refs.name1.prop = "w_money";
-						break;
-					case 3:
-						this.$refs.name1.prop = "m_money";
-						break;
-					case 4:
-						this.$refs.name1.prop = "all_money";
-						break;
 					case 5:
-						this.$refs.name2.prop = "d_total";
+						this.$refs.name2.prop = "todayList";
 						break;
 					case 6:
-						this.$refs.name2.prop = "w_total";
+						this.$refs.name2.prop = "weekList";
 						break;
 					case 7:
-						this.$refs.name2.prop = "m_total";
+						this.$refs.name2.prop = "monthList";
 						break;
 					case 8:
-						this.$refs.name2.prop = "all_total";
+						this.$refs.name2.prop = "allList";
 						break;
 					default:
 						console.log(5);
 						break;
 				}
-			},
-
-			//生产二维码
-			useqrcode(url) {
-				var canvas = document.getElementById('canvas')
-				QRCode.toCanvas(canvas, url, function(error) {
-					if (error) console.error(error);
-				})
 			},
 
 			//复制
@@ -195,20 +163,14 @@
 			
 			//保存
 			preserve(){
-				let url = canvas.toDataURL("image/png");
 				let a = document.createElement('a');
 				let event = new MouseEvent('click');
 				// 下载图名字
 				a.download = '推荐二维码';
 				//url 
-				a.href = url;
+				a.href = this.url_img;
 				//合成函数，执行下载 
 				a.dispatchEvent(event);
-				this.$notify({
-					title: '成功',
-					message: '推荐二维码保存成功',
-					type: 'success'
-				});
 			},
 		}
 	}
@@ -273,7 +235,7 @@
 			}
 		}
 		#table{
-			width: 316px;
+			width: 317px;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;

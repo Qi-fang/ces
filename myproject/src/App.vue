@@ -1,13 +1,17 @@
 <template>
 	<div id="app">
 		<router-link :data-index="1" ref="elMain1" :style="elMain1" to="/recommend">
-			<i class="iconfont icon-yaoqinghaoyou"></i>推荐
+			<div id="div">
+				<i class="el-icon-user le"></i>
+				<i class="el-icon-user cen"></i>
+				<i class="el-icon-user ri"></i>
+			</div>推荐
 		</router-link>
 		<router-link :data-index="2" ref="elMain2" :style="elMain2" to="/new">
 			<i class="el-icon-present"></i>活动
 		</router-link>
 		<router-link :data-index="3" ref="elMain3" :style="elMain3" to="/convert">
-			<i class="iconfont icon-duihuan"></i>兑换
+			<i class="el-icon-money"></i>兑换
 		</router-link>
 		<router-link :data-index="4" ref="elMain4" :style="elMain4" to="/friends">
 			<i class="el-icon-chat-dot-square"></i>博客
@@ -16,12 +20,17 @@
 			<i class="el-icon-user"></i>我的
 		</router-link>
 		
-		<router-view />
+		<router-view v-if="isShow" />
 	</div>
 </template>
 
 <script>
 	export default {
+		provide () {
+			return {
+				reload: this.reload
+			}
+		},
 		data() {
 			return {
 				dat: [],
@@ -40,7 +49,16 @@
 				elMain5: {
 					color: ""
 				},
+				isShow: true,
 			};
+		},
+		methods: {
+			reload () {
+				this.isShow = false;
+				this.$nextTick(function () {
+					this.isShow = true;
+				})
+			}
 		},
 		watch:{
 			'$route.path': function(newVal, oldVal){
@@ -62,7 +80,7 @@
 					this.elMain3.color = "";
 					this.elMain4.color = "#ff6700";
 					this.elMain5.color = "";
-				}else if(newVal === '/personal' || newVal === '/personal/category'){
+				}else if(newVal === '/personal' || newVal === '/personal/category' || newVal === '/personal/mybankcards' || newVal === '/personal/tixian' || newVal === '/personal/duihuan'){
 					this.elMain1.color = "";
 					this.elMain2.color = "";
 					this.elMain3.color = "";
@@ -105,6 +123,13 @@
 		.router-link {
 			line-height: 50px;
 			text-align: center;
+		}
+		#div{
+			position: relative;
+			.cen{
+				position: absolute;
+				left: 8px;
+			}
 		}
 	}
 </style>

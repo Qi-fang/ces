@@ -4,7 +4,8 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
+  // mode: 'history',
+  mode: 'hash',
   base: process.env.BASE_URL,
   routes: [
 	  {path: "/", redirect: "/recommend"},
@@ -22,6 +23,9 @@ export default new Router({
 		children: [
 			{path: "myboke", name: "myboke", meta: {keepAlive: true}, component:() => import(/* webpackChunkName: 'myboke' */ '@/components/personal/myboke')},
 			{path: "category", name: "category", meta: {keepAlive: true}, component:() => import(/* webpackChunkName: 'category' */ '@/components/personal/category')},
+			{path: "mybankcards", name: "mybankcards", component: () => import(/* webpackChunkName: 'mybankcards' */ '@/components/personal/mybankcards')},
+			{path: "tixian", name: "tixian", component: () => import(/* webpackChunkName: 'tixian' */ '@/components/personal/tixian')},
+			{path: "duihuan", name: "duihuan", component: () => import(/* webpackChunkName: 'duihuan' */ '@/components/personal/duihuan')}
 		]
 	}
   ]

@@ -4,7 +4,9 @@
 			<i class="el-icon-arrow-left"></i>
 			<span class="myboke">个人中心</span>
 		</div>
+
 		<div id="btn_modify">
+			<!-- 更改昵称 -->
 			<el-button class="btn" type="info" plain @click="dialogFormVisible = true">
 				<span>更改昵称</span>
 				<i class="el-icon-arrow-right"></i>
@@ -12,7 +14,8 @@
 			<el-dialog title="更改昵称" :visible.sync="dialogFormVisible" width="85%" append-to-body>
 				<el-form :model="form" :rules="rules" ref="form">
 					<el-form-item class="new_name" label="新的昵称：" prop="new_username">
-						<el-input class="new_name_input new_username" ref="new_username" v-model="form.new_username" autocomplete="off" clearable></el-input>
+						<el-input class="new_name_input new_username" ref="new_username" v-model="form.new_username" autocomplete="off"
+						 clearable></el-input>
 					</el-form-item>
 				</el-form>
 				<div slot="footer" class="dialog-footer">
@@ -20,28 +23,8 @@
 					<el-button class="ann" type="primary" @click="modify_name('form')">提 交</el-button>
 				</div>
 			</el-dialog>
-			
-			<!-- 设置新的支付密码 -->
-			<el-button class="btn" type="info" plain @click="dfvc = true">
-				<span>更改支付密码</span>
-				<i class="el-icon-arrow-right"></i>
-			</el-button>
-			<el-dialog class="dialogc" width="85%" title="更改支付密码" :visible.sync="dfvc" append-to-body>
-				<el-form :model="ruleForm1" :rules="rules" ref="ruleForm1" label-width="90px" class="demo-ruleForm1">
-					<el-form-item label="新密码:" prop="new_transaction">
-						<el-input id="new_transaction" ref="new_transaction" v-model="ruleForm1.new_transaction" placeholder="请输入新密码" clearable show-password></el-input>
-					</el-form-item>
-					<el-form-item id="code" label="确认密码:" prop="confirm_transaction">
-						<el-input id="confirm_transaction" ref="confirm_transaction" v-model="ruleForm1.confirm_transaction" placeholder="请输入确认密码"
-						 clearable show-password></el-input>
-					</el-form-item>
-				</el-form>
-				<span slot="footer" class="dialog-footer">
-					<el-button class="ann" type="warning" @click="resetForm('ruleForm1')">重 置</el-button>
-					<el-button class="ann" type="primary" @click="setc('ruleForm1')">修 改</el-button>
-				</span>
-			</el-dialog>
-			
+
+			<!-- 更改手机号码 -->
 			<el-button class="btn" type="info" plain @click="outerVisible = true">
 				<span>更改手机号码</span>
 				<i class="el-icon-arrow-right"></i>
@@ -61,13 +44,40 @@
 					<el-button class="ann" type="primary" @click="forget1('ruleForm2')">确 定</el-button>
 				</span>
 			</el-dialog>
+			
+			<!-- 头像认证 -->
+			<el-button class="btn" type="info" plain @click="faceReg">
+				<span>头像认证</span>
+				<i class="el-icon-arrow-right"></i>
+			</el-button>
+			
+			<!-- 设置新的支付密码 -->
+			<el-button class="btn" type="info" plain @click="dfvc = true">
+				<span>更改支付密码</span>
+				<i class="el-icon-arrow-right"></i>
+			</el-button>
+			<el-dialog class="dialogc" width="85%" title="更改支付密码" :visible.sync="dfvc" append-to-body>
+				<el-form :model="ruleForm1" :rules="rules" ref="ruleForm1" label-width="90px" class="demo-ruleForm1">
+					<el-form-item label="新密码:" prop="new_transaction">
+						<el-input id="new_transaction" ref="new_transaction" v-model="ruleForm1.new_transaction" placeholder="请输入新密码"
+						 clearable show-password></el-input>
+					</el-form-item>
+					<el-form-item id="code" label="确认密码:" prop="confirm_transaction">
+						<el-input id="confirm_transaction" ref="confirm_transaction" v-model="ruleForm1.confirm_transaction" placeholder="请输入确认密码"
+						 clearable show-password></el-input>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button class="ann" type="warning" @click="resetForm('ruleForm1')">重 置</el-button>
+					<el-button class="ann" type="primary" @click="setc('ruleForm1')">修 改</el-button>
+				</span>
+			</el-dialog>
 
+			<!-- =============================华丽的分割线================================= -->
 			<el-button class="btn" type="info" plain @click="modify_password">
 				<span>找回密码</span>
 				<i class="el-icon-arrow-right"></i>
 			</el-button>
-
-			<!-- =============================华丽的分割线================================= -->
 			<el-dialog class="dialog1" title="找回密码" :visible.sync="outerVisible_fp" width="85%" append-to-body
 			 :close-on-click-modal="false" :show-close="false">
 				<!-- 设置新密码 -->
@@ -87,7 +97,6 @@
 						<el-button class="ann" type="primary" @click="set('ruleForm3')">修 改</el-button>
 					</span>
 				</el-dialog>
-
 				<!-- 找回密码 -->
 				<div class="sub-title">找回密码方式一：</div>
 				<el-form :model="ruleForm2" :rules="rules" ref="ruleForm2" label-width="70px" class="demo-ruleForm2">
@@ -99,14 +108,19 @@
 						<input id="phone_btn" class="ann" type="button" v-model="count" @click="btnCheck2()">
 					</el-form-item>
 				</el-form>
-
 				<div class="sub-title">找回密码方式二：</div>
-				<el-button style="width: 126px; height: 40px;" type="info" @click="">自拍头像找回</el-button>
+				<el-button style="width: 126px; height: 40px;" type="info" @click="fv">自拍头像找回</el-button>
 				<span slot="footer" class="dialog-footer">
 					<el-button class="ann" @click="outerVisible_fp= false, close_fp()">取 消</el-button>
 					<el-button class="ann" type="primary" @click="forget2('ruleForm2')">确 定</el-button>
 				</span>
 			</el-dialog>
+
+			<!-- 我的银行卡 -->
+			<el-button class="btn" type="info" plain @click="mbcs">
+				<span>我的银行卡</span>
+				<i class="el-icon-arrow-right"></i>
+			</el-button>
 		</div>
 	</div>
 </template>
@@ -151,13 +165,13 @@
 				rules: {
 					new_username: [{
 							required: true,
-							message: '请输入用户名',
+							message: '请输入新的昵称',
 							trigger: 'blur'
 						},
 						{
-							min: 3,
+							min: 1,
 							max: 15,
-							message: '长度在 3 到 15 个字符',
+							message: '长度在 1 到 15 个字符',
 							trigger: 'blur'
 						}
 					],
@@ -263,61 +277,83 @@
 			gopersonal() {
 				this.$router.replace('/personal');
 			},
-			
+
 			//修改用户名
 			modify_name(form) {
 				//提交
 				this.$refs[form].validate((valid) => {
 					if (valid) {
-						console.log(this.$refs.new_username.value);
 						this.dialogFormVisible = false;
 						this.$refs[form].resetFields();
+						let url = this.$http + "/changeMyInfo"
+						let _nickname = this.$refs.new_username.value;
+						let _realname = sessionStorage.getItem("realname");
+						sessionStorage.setItem("realname", "");
+						let _token = localStorage.getItem("token");
+						let _data = {
+							nickname: _nickname,
+							realname: _realname,
+							token: _token
+						}
+						let data = this.$qs.stringify(_data);
+						let config = {
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded'
+							}
+						}
+						this.$axios.post(url, data, config).then((res) => {
+							let _code = Number(res.data.code);
+							let res_token = res.data.token;
+							localStorage.setItem("token", res_token);
+							if(_code !== -1){
+								this.$notify({
+									title: '成功',
+									message: '昵称修改成功',
+									type: 'success'
+								});
+							}else{
+								this.$notify({
+									title: '提示',
+									message: '昵称修改失败',
+									type: 'warning'
+								});
+							}
+						}).catch((err) => {
+							console.log("错误信息" + err);
+						})
 					} else {
 						console.log('error submit!!');
 						return false;
 					}
 				})
-			},
-			
-			//修改密码
-			setc(formName1) {
-				// 密码加密
-				let sha256 = require("js-sha256").sha256;
-				this.n_t = sha256(this.$refs.new_transaction.value);
-			
-				//提交
-				this.$refs[formName1].validate((valid) => {
-					if (valid) {
-						console.log(this.n_t);
-						this.$notify({
-							title: '成功',
-							message: '密码修改成功',
-							type: 'success'
-						});
-			
-						//密码修改成功后退出修改密码页 并提示修改密码完成
-						this.dfvc = false;
-						this.$refs[formName1].resetFields();
-					} else {
-						console.log('error submit!!');
-						return false;
-					}
-				})
-			},
-			
-			//修改密码
-			modify_password() {
-				this.outerVisible_fp = true;
 			},
 
 			// ================华丽的分割线====================
-			//重置
-			resetForm(formName) {
-				this.$refs[formName].resetFields();
-			},
 			//验证码按钮倒计时
 			btnCheck1() {
 				const TIME_COUNT = 60;
+				let url = this.$http + "/getSmsValidCode";
+				let _tel = this.$refs.phone1.value;
+				this.$axios.get(url, {
+					params:{tel: _tel}
+				}).then((resp) => {
+					let _code = Number(response.data.code);
+					if (_code !== -1) {
+						this.$notify({
+							title: '成功',
+							message: response.data.message,
+							type: 'success'
+						});
+					} else {
+						this.$notify({
+							title: '提示',
+							message: response.data.message,
+							type: 'warning'
+						});
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
 				if (!this.timer) {
 					this.count = TIME_COUNT;
 					this.timer = setInterval(() => {
@@ -332,33 +368,46 @@
 				}
 			},
 
-			btnCheck2() {
-				const TIME_COUNT = 60;
-				if (!this.timer) {
-					this.count = TIME_COUNT;
-					this.timer = setInterval(() => {
-						if (this.count > 1 && this.count <= TIME_COUNT) {
-							this.count--;
-						} else {
-							clearInterval(this.timer);
-							this.timer = null;
-							this.count = "获取";
-						}
-					}, 1000)
-				}
-			},
-
-			close_fp() {
-				this.outerVisible_fp = false;
-			},
-
-			//忘记密码
+			//更改手机号
 			forget1(formName2) {
 				//提交
 				this.$refs[formName2].validate((valid) => {
 					if (valid) {
-						console.log(this.$refs.phone1.value);
-						console.log(this.$refs.code1.value);
+						let url = this.$http + "/userSmsValidCode"
+						let _tel = this.$refs.phone1.value;
+						let _code = this.$refs.code1.value;
+						let _token = localStorage.getItem("token");
+						let _data = {
+							tel: _tel,
+							code: _code,
+							token: _token
+						}
+						let data = this.$qs.stringify(_data);
+						let config = {
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded'
+							}
+						}
+						this.$axios.post(url, data, config).then((res) => {
+							let _code = Number(res.data.code);
+							let res_token = res.data.token;
+							localStorage.setItem("token", res_token);
+							if(_code !== -1){
+								this.$notify({
+									title: '提示',
+									message: res.data.message,
+									type: 'success'
+								});
+							}else{
+								this.$notify({
+									title: '提示',
+									message: res.data.message,
+									type: 'warning'
+								});
+							}
+						}).catch((err) => {
+							console.log("错误信息" + err);
+						})
 						this.outerVisible = false;
 						this.$refs[formName2].resetFields();
 					} else {
@@ -367,17 +416,274 @@
 					}
 				})
 			},
+			
+			//头像认证
+			faceReg(){
+				
+				let that = this;
+				//调用原生系统弹出按钮选择框
+				let page = null;
+				page={ 
+					imgUp:function(){ 
+						plus.nativeUI.actionSheet(
+							{cancel:"取消",buttons:[ 
+							{title:"拍照"}, 
+							// {title:"从相册中选择"} 
+						]}, function(e){
+							//1 是拍照  2 从相册中选择 
+							switch(e.index){ 
+								case 1:
+								getImage();
+								break; 
+								// case 2:
+								// appendByGallery();
+								// break; 
+								default:
+								break;    
+							} 
+						}); 
+					} 
+				}
+				// 拍照函数
+				function getImage(){
+					let cmr = plus.camera.getCamera();
+					cmr.captureImage(function(p){
+						plus.io.resolveLocalFileSystemURL(p, function(entry){
+							var path = entry.toLocalURL();
+							//文件传转base64方法
+							that.imgPreviewnew(path, _typedata);
+							console.log(path);
+							console.log(that.imgPreviewnew(path, _typedata));
+						}, function(e){
+							console.log("读取拍照文件错误："+e.message);
+						});
+					}, function(e){
+						console.log("读取拍照文件错误："+e.message);
+					}, {filename:'_doc/camera/',index:1});
+				}
+							
+				//选择相片文件
+				function appendByGallery(){
+					plus.gallery.pick(function(path){
+						//文件传转base64方法
+						that.imgPreviewnew(path, _typedata);
+					});
+				}
+				// 弹出系统选择按钮框  
+				page.imgUp();
+				
+				let _file = 2;
+				let _token = localStorage.getItem("token");
+				let url = this.$http + "/faceReg";
+				let _data = {
+					file: _file,
+					token: _token
+				}
+				let data = this.$qs.stringify(_data);
+				let config = {
+				    headers: {
+				        'Content-Type': 'application/x-www-form-urlencoded'
+				    }
+				}
+				this.$axios.post(url, data, config).then((res) => {
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
+			},
+			
+			//头像头像找回密码
+			fv(){
+				let that = this;
+				//调用原生系统弹出按钮选择框
+				let page = null;
+				page={ 
+					imgUp:function(){ 
+						plus.nativeUI.actionSheet(
+							{cancel:"取消",buttons:[ 
+							{title:"拍照"}, 
+							// {title:"从相册中选择"} 
+						]}, function(e){
+							//1 是拍照  2 从相册中选择 
+							switch(e.index){ 
+								case 1:
+								getImage();
+								break; 
+								// case 2:
+								// appendByGallery();
+								// break; 
+								default:
+								break;    
+							} 
+						}); 
+					} 
+				}
+				// 拍照函数
+				function getImage(){
+					let cmr = plus.camera.getCamera();
+					cmr.captureImage(function(p){
+						plus.io.resolveLocalFileSystemURL(p, function(entry){
+							var path = entry.toLocalURL();
+							//文件传转base64方法
+							that.imgPreviewnew(path, _typedata);
+						}, function(e){
+							console.log("读取拍照文件错误："+e.message);
+						});
+					}, function(e){
+						console.log("读取拍照文件错误："+e.message);
+					}, {filename:'_doc/camera/',index:1});
+				}
+							
+				//选择相片文件
+				function appendByGallery(){
+					plus.gallery.pick(function(path){
+						//文件传转base64方法
+						that.imgPreviewnew(path, _typedata);
+					});
+				}
+				// 弹出系统选择按钮框  
+				page.imgUp();
+			},
+			
+			//更改支付密码
+			setc(formName1) {
+				// 密码加密
+				let sha256 = require("js-sha256").sha256;
+				this.n_t = sha256(this.$refs.new_transaction.value);
+
+				//提交
+				this.$refs[formName1].validate((valid) => {
+					if (valid) {
+						let _newpasswd = this.n_t;
+						let _token = localStorage.getItem("token");
+						let url = this.$http + "/changeMoneyPasswd";
+						let _data = {
+							newpasswd: _newpasswd,
+							token: _token
+						}
+						let data = this.$qs.stringify(_data);
+						let config = {
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded'
+							}
+						}
+						this.$axios.post(url, data, config).then((response) => {
+							let _code = Number(response.data.code);
+							let res_token = response.data.token;
+							localStorage.setItem("token", res_token);
+							if (_code !== -1) {
+								this.$notify({
+									title: '成功',
+									message: '密码修改成功',
+									type: 'success'
+								});
+					
+								//密码修改成功后退出修改密码页 并提示修改密码完成
+								this.innerVisible = false;
+								this.outerVisible = false;
+								this.$refs[formName1].resetFields();
+							} else {
+								this.$notify({
+									title: '提示',
+									message: '输入信息有误',
+									type: 'warning'
+								});
+								this.innerVisible = true;
+							}
+						}).catch((error) => {
+							console.log("错误信息" + error);
+						})
+					} else {
+						console.log('error submit!!');
+						return false;
+					}
+				})
+			},
+
+			// ================华丽的分割线====================
+			//修改登录密码
+			modify_password() {
+				this.outerVisible_fp = true;
+			},
+
+			//取消
+			close_fp() {
+				this.outerVisible_fp = false;
+			},
+
+			//验证码按钮倒计时
+			btnCheck2() {
+				const TIME_COUNT = 60;
+				let url = this.$http + "/getSmsValidCode";
+				let _tel = this.$refs.phone2.value;
+				this.$axios.get(url, {
+					params:{tel: _tel}
+				}).then((resp) => {
+					let _code = Number(response.data.code);
+					if (_code !== -1) {
+						this.$notify({
+							title: '成功',
+							message: response.data.message,
+							type: 'success'
+						});
+					} else {
+						this.$notify({
+							title: '提示',
+							message: response.data.message,
+							type: 'warning'
+						});
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
+				if (!this.timer) {
+					this.count = TIME_COUNT;
+					this.timer = setInterval(() => {
+						if (this.count > 1 && this.count <= TIME_COUNT) {
+							this.count--;
+						} else {
+							clearInterval(this.timer);
+							this.timer = null;
+							this.count = "获取";
+						}
+					}, 1000)
+				}
+			},
+
 			//忘记密码
 			forget2(formName2) {
 				//提交
 				this.$refs[formName2].validate((valid) => {
 					if (valid) {
-						console.log(this.$refs.phone2.value);
-						console.log(this.$refs.code2.value);
-			
-						//判断验证码是否正确 进入修改密码页
-						this.innerVisible = true;
-						this.$refs[formName2].resetFields();
+						let _tel = this.$refs.phone2.value;
+						let _code = this.$refs.code2.value;
+						let url = this.$http + "/smsValidCode";
+						let _data = {
+							tel: _tel,
+							code: _code
+						}
+						let data = this.$qs.stringify(_data);
+						let config = {
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded'
+							}
+						}
+						this.$axios.post(url, data, config).then((resp1) => {
+							let _code = Number(resp1.data.code);
+							let res_token = resp1.data.token;
+							localStorage.setItem("token", res_token);
+							if (_code !== -1) {
+								//判断验证码是否正确 进入修改密码页
+								this.innerVisible = true;
+							} else {
+								this.$notify({
+									title: '提示',
+									message: '输入信息有误',
+									type: 'warning'
+								});
+							}
+						}).catch((err) => {
+							console.log("错误信息" + err);
+						})
 					} else {
 						console.log('error submit!!');
 						return false;
@@ -394,22 +700,61 @@
 				//提交
 				this.$refs[formName3].validate((valid) => {
 					if (valid) {
-						console.log(this.n_pw);
-						this.$notify({
-							title: '成功',
-							message: '密码修改成功',
-							type: 'success'
-						});
+						let _newpasswd = this.n_pw;
+						let _token = localStorage.getItem("token");
+						let url = this.$http + "/changePasswd";
+						let _data = {
+							newpasswd: _newpasswd,
+							token: _token
+						}
+						let data = this.$qs.stringify(_data);
+						let config = {
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded'
+							}
+						}
+						this.$axios.post(url, data, config).then((response) => {
+							console.log(response);
+							let _code = Number(response.data.code);
+							let res_token = response.data.token;
+							localStorage.setItem("token", res_token);
+							if (_code !== -1) {
+								this.$notify({
+									title: '成功',
+									message: '密码修改成功',
+									type: 'success'
+								});
 
-						//密码修改成功后退出修改密码页 并提示修改密码完成
-						this.innerVisible = false;
-						this.outerVisible_fp = false;
-						this.$refs[formName3].resetFields();
+								//密码修改成功后退出修改密码页 并提示修改密码完成
+								this.innerVisible = false;
+								this.outerVisible = false;
+								this.$refs[formName3].resetFields();
+							} else {
+								this.$notify({
+									title: '提示',
+									message: '输入信息有误',
+									type: 'warning'
+								});
+								this.innerVisible = true;
+							}
+						}).catch((error) => {
+							console.log("错误信息" + error);
+						})
 					} else {
 						console.log('error submit!!');
 						return false;
 					}
 				})
+			},
+
+			//重置
+			resetForm(formName) {
+				this.$refs[formName].resetFields();
+			},
+
+			//我的银行卡
+			mbcs() {
+				this.$router.replace('/personal/mybankcards');
 			}
 		}
 	}
@@ -476,8 +821,7 @@
 		}
 	}
 
-	#code, #code1,
-	#code2 {
+	#code, #code1, #code2 {
 		position: relative;
 		margin-top: 20px;
 

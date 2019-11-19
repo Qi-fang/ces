@@ -11,7 +11,7 @@
 		</button>
 		
 		<button class="btn" type="info" plain @click="txjl">
-			<span>提现记录</span>
+			<span>提现</span>
 			<i class="el-icon-arrow-right"></i>
 		</button>
 		<button class="btn" type="info" plain @click="dhjl">
@@ -76,19 +76,60 @@
 			grxx() {
 				this.$router.replace('/personal/category');
 			},
+			
+			// 提现
 			txjl() {
-				console.log("txjl");
+				this.$router.replace('/personal/tixian');
 			},
+			
+			// 兑换记录
 			dhjl() {
-				console.log("dhjl");
+				this.$router.replace('/personal/duihuan');
 			},
+			
+			// 版本更新
 			bbgx() {
-				console.log("bbgx");
+				// this.$camera.getCamera(1).then(function (position) {
+				//    alert("调用摄像头");
+				// });
+				// this.$gallery.pick((path) => {
+				// 	console.log(path);
+				// }).then((position) => {
+				//    alert("调用相册");
+				// });
+				// this.$runtime.openWeb(url).then((position) => {
+				//    alert("调用内置浏览器");
+				// });
+				let url = this.$http + "/getAppVer";
+				this.$axios.get(url).then((resp) => {
+					let _code = Number(resp.data.code);
+					let res_token = resp.data.token;
+					localStorage.setItem("token", res_token);
+					if(_code !== -1){
+						this.$notify({
+							title: '成功',
+							message: "已是最新版本",
+							type: 'success'
+						});
+						return true;
+					} else {
+						console.log('error submit!!');
+						this.$message({
+							title: '提示',
+							message: resp.data.message,
+							type: 'warning'
+						});
+						return false;
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
 			},
-			//退出登录
+			
+			// 退出登录
 			modify_logout() {
 				this.$router.replace('/login');
-				localStorage.setItem("token", "");
+				// localStorage.setItem("token", "");
 			},
 		}
 	}

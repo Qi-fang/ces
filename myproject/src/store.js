@@ -8,9 +8,6 @@ export default new Vuex.Store({
 	state: {
 		top: 0,
 		countt: 100,
-		dzpd: false,//是否已点赞
-		dznb: 100,//点赞数
-		chongz: 2.1,//充值
 	},
 	//同步
 	mutations: {
@@ -23,21 +20,18 @@ export default new Vuex.Store({
 		remove(state, n = 0){
 			return (state.countt -= n);
 		},
-		dianzan(state, e){
-			const dd = window.localStorage.getItem('dzpd');
-			if(dd === "false" || dd === "" || dd === "null"){
-				state.dzpd = true;
-				window.localStorage.setItem('dzpd', state.dzpd);
-				return (state.dznb += 1);
-			}else{
-				state.dzpd = false;
-				window.localStorage.setItem('dzpd', state.dzpd);
-				return (state.dznb -= 1);
-			}
-		},
-		czhi(state, m = 0){
-			return (state.chongz += m);
-		}
+		// dianzan(state, e){
+		// 	const dd = window.localStorage.getItem('dzpd');
+		// 	if(dd === "false" || dd === "" || dd === "null"){
+		// 		state.dzpd = true;
+		// 		window.localStorage.setItem('dzpd', state.dzpd);
+		// 		return (state.dznb -= 1);
+		// 	}else{
+		// 		state.dzpd = false;
+		// 		window.localStorage.setItem('dzpd', state.dzpd);
+		// 		return (state.dznb += 1);
+		// 	}
+		// },
 	},
 	getters: {
 		home_list_top(state) {

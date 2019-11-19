@@ -20,6 +20,7 @@
 			<div>
 				<!-- <el-link href="" type="primary">账号找回</el-link> -->
 				<el-button class="forgot_password" type="text" @click="outerVisible = true">忘记密码</el-button>
+				<el-button class="faceValid" type="text" @click="faceValid">头像登录</el-button>
 				<el-dialog class="dialog1" title="找回密码" :visible.sync="outerVisible" width="85%">
 
 					<!-- 设置新密码 -->
@@ -53,7 +54,7 @@
 					</el-form>
 
 					<div class="sub-title">找回密码方式二：</div>
-					<el-button type="info" @click="">自拍头像找回</el-button>
+					<el-button type="info" @click="fv">自拍头像找回</el-button>
 					<span slot="footer" class="dialog-footer">
 						<el-button @click="outerVisible = false">取 消</el-button>
 						<el-button type="primary" @click="forget('ruleForm2')">确 定</el-button>
@@ -162,15 +163,8 @@
 				}
 			}
 		},
-		created() {
-			this.$axios.get('http://localhost:8081/test/city').then(res => {
-				if (res.data) {
-					let dat = res.data.cityList;
-					this.cityList1 = dat.slice(4, 5);
-				}
-			})
-		},
 		methods: {
+			//登录
 			submitForm(formName) {
 				// 密码加密
 				let sha256 = require("js-sha256").sha256;
@@ -179,25 +173,41 @@
 				//提交
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
-						alert('submit!');
-						console.log(this.$refs.username.value);
-						console.log(this.pw);
-						this.$notify({
-							title: '成功',
-							message: '欢迎回来',
-							type: 'success'
+						let _username = this.$refs.username.value;
+						let _passwd = this.pw;
+						
+						let url = this.$http + '/login';
+						let _data = {
+							username: _username,
+							passwd: _passwd,
+						};
+						let data = this.$qs.stringify(_data);
+						let config = {
+						    headers: {
+						        'Content-Type': 'application/x-www-form-urlencoded'
+						    }
+						}
+						this.$axios.post(url, data, config).then((res) => {
+							const _token = res.data.token;
+							if(_token !== null){
+								window.localStorage.setItem('token', _token);
+								this.$router.replace('/recommend');
+								this.$notify({
+									title: '成功',
+									message: '欢迎回来',
+									type: 'success'
+								});
+							} else {
+								console.log('error submit!!');
+								this.$message({
+									message: '登录失败，请重新登录',
+									type: 'warning'
+								});
+								return false;
+							}
+						}).catch((err)=>{
+							console.log("错误信息" + err);
 						});
-						// const token = response.data.token;
-						const token = this.cityList1[0].token;
-						window.localStorage.setItem('token', token);
-						this.$router.replace('/recommend');
-					} else {
-						console.log('error submit!!');
-						this.$message({
-							message: '登录失败，请重新登录',
-							type: 'warning'
-						});
-						return false;
 					}
 				});
 			},
@@ -210,18 +220,40 @@
 			//验证码按钮倒计时
 			btnCheck() {
 				const TIME_COUNT = 60;
-				if (!this.timer) {
-					this.count = TIME_COUNT;
-					this.timer = setInterval(() => {
-						if (this.count > 1 && this.count <= TIME_COUNT) {
-							this.count--;
-						} else {
-							clearInterval(this.timer);
-							this.timer = null;
-							this.count = "获取";
+				let url = this.$http + "/getSmsValidCode";
+				let _tel = this.$refs.phone.value;
+				this.$axios.get(url, {
+					params:{tel: _tel}
+				}).then((resp) => {
+					let _code = Number(resp.data.code);
+					if(_code !== -1){
+						this.$notify({
+							title: '提示',
+							message: '信息发送成功',
+							type: 'success'
+						});
+						if (!this.timer) {
+							this.count = TIME_COUNT;
+							this.timer = setInterval(() => {
+								if (this.count > 1 && this.count <= TIME_COUNT) {
+									this.count--;
+								} else {
+									clearInterval(this.timer);
+									this.timer = null;
+									this.count = "获取";
+								}
+							}, 1000)
 						}
-					}, 1000)
-				}
+					}else{
+						this.$notify({
+							title: '提示',
+							message: '该手机号没有注册过',
+							type: 'warning'
+						});
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
 			},
 			
 			//忘记密码
@@ -229,12 +261,34 @@
 				//提交
 				this.$refs[formName2].validate((valid) => {
 					if (valid) {
-						console.log(this.$refs.phone.value);
-						console.log(this.$refs.code.value);
-						
-						//判断验证码是否正确 进入修改密码页
-						this.innerVisible = true;
-						
+						let _tel = this.$refs.phone.value;
+						let _code = this.$refs.code.value;
+						let url = this.$http + "/smsValidCode";
+						let _data = {
+							tel: _tel,
+							code: _code
+						}
+						let data = this.$qs.stringify(_data);
+						let config = {
+						    headers: {
+						        'Content-Type': 'application/x-www-form-urlencoded'
+						    }
+						}
+						this.$axios.post(url, data, config).then((resp1) => {
+							let _code = Number(resp1.data.code);
+							if(_code !== -1){
+								//判断验证码是否正确 进入修改密码页
+								this.innerVisible = true;
+							}else{
+								this.$notify({
+									title: '提示',
+									message: '输入信息有误',
+									type: 'warning'
+								});
+							}
+						}).catch((err) => {
+							console.log("错误信息" + err);
+						})
 					} else {
 						console.log('error submit!!');
 						return false;
@@ -251,22 +305,191 @@
 				//提交
 				this.$refs[formName3].validate((valid) => {
 					if (valid) {
-						console.log(this.n_pw);
-						this.$notify({
-							title: '成功',
-							message: '密码修改成功',
-							type: 'success'
-						});
-						
-						//密码修改成功后退出修改密码页 并提示修改密码完成
-						this.innerVisible = false;
-						this.outerVisible = false;
-						
+						let _newpasswd = this.n_pw;
+						let _token = localStorage.getItem("token");
+						let url = this.$http + "/changePasswd";
+						let _data = {
+							newpasswd: _newpasswd,
+							token: _token
+						}
+						let data = this.$qs.stringify(_data);
+						let config = {
+						    headers: {
+						        'Content-Type': 'application/x-www-form-urlencoded'
+						    }
+						}
+						this.$axios.post(url, data, config).then((response) => {
+							console.log(response);
+							let _code = Number(response.data.code);
+							if(_code !== -1){
+								this.$notify({
+									title: '成功',
+									message: '密码修改成功',
+									type: 'success'
+								});
+								
+								//密码修改成功后退出修改密码页 并提示修改密码完成
+								this.innerVisible = false;
+								this.outerVisible = false;
+								this.$refs[formName3].resetFields();
+							}else{
+								this.$notify({
+									title: '提示',
+									message: '输入信息有误',
+									type: 'warning'
+								});
+								this.innerVisible = true;
+							}
+						}).catch((error) => {
+							console.log("错误信息" + error);
+						})
 					} else {
 						console.log('error submit!!');
 						return false;
 					}
 				})
+			},
+			
+			//头像登录
+			faceValid(){
+				let that = this;
+				//调用原生系统弹出按钮选择框
+				let page = null;
+				page={ 
+					imgUp:function(){ 
+						plus.nativeUI.actionSheet(
+							{cancel:"取消",buttons:[ 
+							{title:"拍照"}, 
+							// {title:"从相册中选择"} 
+						]}, function(e){
+							//1 是拍照  2 从相册中选择 
+							switch(e.index){ 
+								case 1:
+								getImage();
+								break; 
+								// case 2:
+								// appendByGallery();
+								// break; 
+								default:
+								break;    
+							} 
+						}); 
+					} 
+				}
+				// 拍照函数
+				function getImage(){
+					let cmr = plus.camera.getCamera();
+					cmr.captureImage(function(p){
+						plus.io.resolveLocalFileSystemURL(p, function(entry){
+							var path = entry.toLocalURL();
+							//文件传转base64方法
+							that.imgPreviewnew(path, _typedata);
+						}, function(e){
+							console.log("读取拍照文件错误："+e.message);
+						});
+					}, function(e){
+						console.log("读取拍照文件错误："+e.message);
+					}, {filename:'_doc/camera/',index:1});
+				}
+							
+				//选择相片文件
+				function appendByGallery(){
+					plus.gallery.pick(function(path){
+						//文件传转base64方法
+						that.imgPreviewnew(path, _typedata);
+					});
+				}
+				// 弹出系统选择按钮框  
+				page.imgUp();
+				
+				
+				let _file = 1;
+				let _token = localStorage.getItem("token");
+				let url = this.$http + "/faceValid";
+				let _data = {
+					file: _file,
+					token: _token
+				}
+				let data = this.$qs.stringify(_data);
+				let config = {
+				    headers: {
+				        'Content-Type': 'application/x-www-form-urlencoded'
+				    }
+				}
+				this.$axios.post(url, data, config).then((res) => {
+					let _code = Number(res.data.code);
+					if(_code !== -1){
+						this.$notify({
+							title: '提示',
+							message: '欢迎回来',
+							type: 'success'
+						});
+						let newtoken = res;
+						console.log(newtoken);
+						// localStorage.setItem("token", newtoken);
+						this.$router.replace('/recommend');
+					}else{
+						this.$notify({
+							title: '提示',
+							message: '登录失败，请重新登录',
+							type: 'warning'
+						});
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
+			},
+			
+			fv(){
+				let that = this;
+				//调用原生系统弹出按钮选择框
+				let page = null;
+				page={ 
+					imgUp:function(){ 
+						plus.nativeUI.actionSheet(
+							{cancel:"取消",buttons:[ 
+							{title:"拍照"}, 
+							// {title:"从相册中选择"} 
+						]}, function(e){
+							//1 是拍照  2 从相册中选择 
+							switch(e.index){ 
+								case 1:
+								getImage();
+								break; 
+								// case 2:
+								// appendByGallery();
+								// break; 
+								default:
+								break;    
+							} 
+						}); 
+					} 
+				}
+				// 拍照函数
+				function getImage(){
+					let cmr = plus.camera.getCamera();
+					cmr.captureImage(function(p){
+						plus.io.resolveLocalFileSystemURL(p, function(entry){
+							var path = entry.toLocalURL();
+							//文件传转base64方法
+							that.imgPreviewnew(path, _typedata);
+						}, function(e){
+							console.log("读取拍照文件错误："+e.message);
+						});
+					}, function(e){
+						console.log("读取拍照文件错误："+e.message);
+					}, {filename:'_doc/camera/',index:1});
+				}
+							
+				//选择相片文件
+				function appendByGallery(){
+					plus.gallery.pick(function(path){
+						//文件传转base64方法
+						that.imgPreviewnew(path, _typedata);
+					});
+				}
+				// 弹出系统选择按钮框  
+				page.imgUp();
 			}
 		},
 	}
@@ -283,6 +506,7 @@
 		justify-content: center;
 		align-items: center;
 		background: white;
+		
 		.login {
 			width: 90%;
 			max-width: 500px;
@@ -311,8 +535,7 @@
 				right: 10px;
 			}
 
-			.username,
-			.password {
+			.username, .password {
 				max-width: 300px;
 				width: 95%;
 			}
@@ -322,7 +545,13 @@
 				right: 2vw;
 				bottom: 30px;
 			}
-
+			
+			.faceValid{
+				position: absolute;
+				left: .6vw;
+				bottom: 30px;
+			}
+			
 			.sub-title {
 				margin-bottom: 15px;
 			}
@@ -350,8 +579,7 @@
 		}
 	}
 
-	.dialog1,
-	.dialog2 {
+	.dialog1, .dialog2 {
 		display: flex;
 		justify-content: center;
 		align-items: center;

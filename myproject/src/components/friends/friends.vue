@@ -3,96 +3,90 @@
 		<!-- 博客圈 -->
 		<el-container v-if="bock" ref="scroll">
 			<el-header>博客圈</el-header>
-			<el-main>
-				<i class="el-icon-camera-solid el-icon--right" @click="show"></i>
+			<i class="el-icon-camera-solid el-icon--right boke" @click="show"></i>
 
-				<div v-for="item_bg in cityList1" :key="item_bg.ID">
-					<el-image :src="item_bg.bg"></el-image>
-				</div>
-				<el-row class="demo-avatar demo-basic">
-					<ul>
-						<li v-for="item in cityList1" :key="item.ID">
-							<div class="sub-title">{{item.cname}}</div>
-						</li>
-					</ul>
-					<div class="demo-basic--circle">
-						<div class="block" v-for="item_background in cityList1" :key="item_background.ID" @click="myboke">
-							<el-avatar :size="50" :src="item_background.background"></el-avatar>
-						</div>
-					</div>
-				</el-row>
-			</el-main>
-			<ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="disabled" infinite-scroll-distance="10">
-				<li id='list' v-for="item in filteredItems" class="infinite-list-item">
-					<div class="demo-basic--circle">
-						<div class="block" v-for="item_background in cityList1" :key="item_background.ID" @click="myboke">
-							<el-avatar :size="50" :src="item.background"></el-avatar>
-						</div>
-					</div>
+			<ul class="list" v-for="fit1 in cityList1">
+				<li id='list' v-for="fit in fit1">
+					<!-- <div @click="myboke"> -->
+					<el-avatar :size="50" :src="url"></el-avatar>
+					<!-- </div> -->
 					<p class='cname' style='overflow: hidden;white-space: nowrap;text-overflow: ellipsis;'>
-						{{item.cname}}<br />
-						{{item.date.slice(14)}}
+						{{fit.publisher.nickname}}<br />
+						<span style="color: #A9A9A9; font-size: 12px;">
+							发布时间: {{fit.publishTime.slice(5, 10)}}日
+							{{fit.publishTime.slice(11, 13)}}点
+						</span>
 					</p>
 					<div class="friends">
 						<p class='friends_title' style='width: 85%; overflow: hidden;white-space: nowrap;text-overflow: ellipsis;'>
-							{{item.friends_title}}
+							{{fit.title}}
 						</p>
 						<div class='friends_content' style='width: 95%; overflow: hidden; text-overflow: ellipsis; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;'>
-							{{item.friends_content}}
+							{{fit.content}}
 						</div>
 					</div>
 					<div id="friends_picture">
-						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
-						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
-						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
-						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
-						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
-						<el-image class="friends_picture" style="visibility: hidden;" :src="item.friends_picture"></el-image>
+						<el-image class="friends_picture" 
+						v-if="String(fit.imgs).indexOf('.jpg') > 0 ? true : false" :src="
+						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(0, 56) : fit.imgs
+						"></el-image>
+						<el-image class="friends_picture" 
+						v-if="String(fit.imgs).indexOf('.jpg', 60) > 0 ? true : false" :src="
+						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(57, 113) : fit.imgs
+						"></el-image>
+						<el-image class="friends_picture"
+						v-if="String(fit.imgs).indexOf('.jpg', 120) > 0 ? true : false" :src="
+						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(114, 170) : fit.imgs
+						"></el-image>
+						<el-image class="friends_picture"
+						 v-if="String(fit.imgs).indexOf('.jpg', 180) > 0 ? true : false" :src="
+						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(171, 227) : fit.imgs
+						"></el-image>
+						<el-image class="friends_picture"
+						 v-if="String(fit.imgs).indexOf('.jpg', 230) > 0 ? true : false" :src="
+						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(228, 284) : fit.imgs
+						"></el-image>
 					</div>
 					<div class='pldz'>
-						<i class="iconfont icon-Group-" @click="more($event)"> {{item.friends_message}} </i>&nbsp;&nbsp;
-						<!-- <i class="iconfont icon-dianzan" @click="dianz($event)"> {{item.friends_number}} 赞</i> -->
-						<i class="iconfont icon-dianzan" @click="dianz($event)"> {{$store.state.dznb}} 赞</i>
-					</div>
-					<div class="pl">
-						<p>{{item.ID}} : {{item.message_content}} </p>
-						<p>{{item.ID}} : {{item.message_content}} </p>
-						<p>{{item.ID}} : {{item.message_content}} </p>
-						<div class="more" @click="more_pl($event)">
-							查看更多评论
-							<div id="ifm">{{item.friends_message}}</div>
-						</div>
+						<i class="el-icon-chat-line-round" @click="more($event)"> {{fit.commentsNumber}}<span style="color: white;">?{{fit.id}}</span></i>&nbsp;&nbsp;
+						<i class="el-icon-thumb" @click="dianz($event)"> {{fit.likeNumber}} <span style="color: white;">?{{fit.id}}</span></i>
 					</div>
 				</li>
-				<br />
 			</ul>
-			<p v-if="loading">加载中...</p>
-			<p v-if="noMore">没有更多了</p>
 		</el-container>
 
 		<div id="pl" v-if="unbock">
 			<!-- 查看评论 -->
-			<div id="block" v-for="fit in cityList1">
+			<div id="block">
 				<i class="el-icon-arrow-left returnf" @click="returnfriends">返回博客圈</i>
-				<div id="more_pl" v-for="index in message_number">
-					<el-avatar class="more_plel" :size="50" :src="fit.background"></el-avatar>
-					<div class="more_div">
+				<div v-for="fit1 in blogCommentsList">
+					<div class="more_div" v-for="fit in fit1">
 						<p class="more_pl">
-							{{fit.ID}} :
-							<span class='pldz_more'>
-								<i class="iconfont icon-Group-"></i>&nbsp;&nbsp;
-								<i class="iconfont icon-dianzan" @click="dianz($event)">{{$store.state.dznb}}</i>
+							{{fit.publisher.nickname}} :
+							<!-- <span class='pldz_more'>
+								<i class="iconfont icon-Group-" @click="more_pl($event)">{{fit.commentsNumber}}</i>&nbsp;&nbsp;
+								<i class="iconfont icon-dianzan" @click="dianz($event)">{{fit.likeNumber}} 赞</i>
+							</span> -->
+						</p>
+						<p class="more_pl">
+							{{fit.content}}
+							<span style="color: #A9A9A9; font-size: 12px;">
+								发布时间: {{fit.publishTime.slice(5, 10)}}日
+								{{fit.publishTime.slice(11, 13)}}点
 							</span>
 						</p>
-						{{fit.message_content}}
-						<br />
-						{{fit.date.slice(14)}}
 					</div>
 				</div>
+
 				<div id='pl_more'>
+					<!-- 评论 -->
+					<el-form class="demo-form-inline fpl" v-if="fpl">
+						<el-input v-model="user" ref="user" placeholder="评论"></el-input>
+						<el-button class="ann" type="primary" @click="onSubmit">发送</el-button>
+					</el-form>
 					<div class="pl_more">
-						<i class="iconfont icon-Group-" @click="more($event)"></i>
-						<i class="iconfont icon-dianzan" @click="dianz($event)"></i>
+						<i class="el-icon-chat-line-round" @click="more_pl($event)"></i>
+						<i class="el-icon-thumb" @click="dianz1($event)"></i>
 					</div>
 				</div>
 			</div>
@@ -114,10 +108,10 @@
 		components: {
 			uploadboke
 		},
+		inject: ['reload'],
 		data() {
 			return {
 				cityList1: [],
-				cityList20: [],
 				bock: true,
 				unbock: false,
 				ub: false,
@@ -125,31 +119,27 @@
 				loading: false,
 				friends_dianz: [],
 				more_message: false,
-				message_number: 0,
+				user: '',
+				text: '',
+				fpl: false,
+				blogCommentsList: [],
+				url: "https://avatars3.githubusercontent.com/u/5277268?s=460&v=4",
 			}
 		},
 		created() {
-			this.$axios.get('http://localhost:8081/test/city').then(res => {
-				if (res.data) {
-					let dat = res.data.cityList;
-					this.cityList1 = dat.slice(4, 5);
-					this.cityList20 = dat.slice(0, 20);
+			let _token = localStorage.getItem("token");
+			let blogListurl = this.$http + "/blogList";
+			this.$axios.get(blogListurl, {
+				params: {
+					token: _token,
+					pageNumber: 1,
+					pageSize: 20
 				}
+			}).then((res) => {
+				this.cityList1.push(res.data.data.content);
+			}).catch((e) => {
+				console.log("错误信息" + e);
 			})
-		},
-		computed: {
-			...mapGetters([
-				"home_list_top" //vuex中的存放的滚动条的位置
-			]),
-			noMore() {
-				return this.count >= 20;
-			},
-			disabled() {
-				return this.loading || this.noMore;
-			},
-			filteredItems() {
-				return this.cityList20.slice(0, this.count);
-			}
 		},
 		methods: {
 			// 上拉加载更多
@@ -161,35 +151,141 @@
 				}, 2000)
 			},
 
-			// 点赞
-			// dianz(e){
-			// 	this.friends_dianz = e.target.innerText.slice(0, 3);
-			// 	this.friends_dianz++;
-			// },
-			...mapMutations({
-				dianz: "dianzan",
-			}),
+			//点赞
+			dianz(e) {
+				let postBlogLikeurl = this.$http + "/postBlogLike";
+				let subid = e.target.innerText;
+				let _blog_id = subid.substring(subid.lastIndexOf("?") + 1);
+				let _token = localStorage.getItem("token");
+				let _data = {
+					blog_id: _blog_id,
+					token: _token
+				}
+				let data = this.$qs.stringify(_data);
+				let config = {
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
+					}
+				}
+				this.$axios.post(postBlogLikeurl, data, config).then((resp) => {
+					if (Number(resp.data.code) === -1) {
+						this.$notify({
+							title: '提示',
+							message: resp.data.message,
+							type: 'warning'
+						});
+					} else {
+						this.reload();
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
+			},
+			//点赞1
+			dianz1(e) {
+				let postBlogLikeurl = this.$http + "/postBlogLike";
+				let _blog_id = sessionStorage.getItem("plid");
+				let _token = localStorage.getItem("token");
+				let _data = {
+					blog_id: _blog_id,
+					token: _token
+				}
+				let data = this.$qs.stringify(_data);
+				let config = {
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
+					}
+				}
+				this.$axios.post(postBlogLikeurl, data, config).then((resp) => {
+					if (Number(resp.data.code) === -1) {
+						this.$notify({
+							title: '提示',
+							message: resp.data.message,
+							type: 'warning'
+						});
+					} else {
+						this.reload();
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
+			},
+
 			// 更多评论
 			more(e) {
-				this.friends_more = e.target.innerText;
-				this.more_message = true;
-				this.bock = false;
-				this.unbock = true;
-				// this.$router.replace('/friends/pl');
-				// if(this.friends_more > 10){
-				// 	this.message_number = 10;
-				// }else{
-				// 	this.message_number = Number(this.friends_more);
-				// }
-				this.message_number = Number(this.friends_more);
+				let _token = localStorage.getItem("token");
+				let subid = e.target.innerText;
+				let _blogId = subid.substring(subid.lastIndexOf("?") + 1);
+				let blogCommentsListurl = this.$http + "/blogCommentsList";
+				this.$axios.get(blogCommentsListurl, {
+					params: {
+						token: _token,
+						blogId: _blogId
+					}
+				}).then((res) => {
+					let _code = Number(res.data.code);
+					if (_code !== -1) {
+						let pls = e.target.innerText;
+						this.friends_more = Number(pls.substring(0, pls.lastIndexOf("?")));
+						this.more_message = true;
+						this.bock = false;
+						this.unbock = true;
+						let _plid = _blogId;
+						sessionStorage.setItem("plid", _plid);
+						this.blogCommentsList.push(res.data.data);
+					} else {
+						this.$notify({
+							title: '提示',
+							message: '获取评论异常',
+							type: 'warning'
+						});
+					}
+				}).catch((e) => {
+					console.log("错误信息" + e);
+				})
 			},
-			
+
+			// 评论
+			onSubmit() {
+				let _blog_id = sessionStorage.getItem("plid");
+				let _content = this.user;
+				let _token = localStorage.getItem("token");
+				let url = this.$http + "/postBlogComments";
+				let _data = {
+					content: _content,
+					blog_id: _blog_id,
+					token: _token
+				}
+				let data = this.$qs.stringify(_data);
+				let config = {
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
+					}
+				}
+				this.$axios.post(url, data, config).then((res) => {
+					let _code = Number(res.data.code);
+					if (_code !== -1) {
+						this.$notify({
+							title: '提示',
+							message: res.data.message,
+							type: 'success'
+						});
+						this.fpl = false;
+						this.user = "";
+					} else {
+						this.$notify({
+							title: '提示',
+							message: res.data.message,
+							type: 'warning'
+						});
+					}
+				}).catch((err) => {
+					console.log("错误信息" + err);
+				})
+			},
+
 			more_pl(e) {
-				this.fmp = e.target.innerText.slice(7);
-				this.more_message = true;
-				this.bock = false;
-				this.unbock = true;
-				this.message_number = Number(this.fmp);
+				this.fpl = !this.fpl;
 			},
 
 			//点击进入发布动态
@@ -203,15 +299,16 @@
 			myboke() {
 				this.$router.replace('/personal/myboke');
 			},
-			recordScrollPosition(e) {
-				this.$store.dispatch("setHomeListTop", e.target.scrollTop); //实时存入到vuex中
-			},
-
-			//点击回到博客圈
 			returnfriends() {
 				this.more_message = false;
 				this.bock = true;
 				this.unbock = false;
+				this.reload();
+			},
+
+			//点击查看动态
+			recordScrollPosition(e) {
+				this.$store.dispatch("setHomeListTop", e.target.scrollTop); //实时存入到vuex中
 			},
 		},
 		//this.$refs.scroll拿到滚动的dom，即scrollContainer，this.home_list_top是存入到vuex里的值
@@ -251,33 +348,20 @@
 				line-height: 60px;
 			}
 
-			.el-main {
-				position: relative;
-
-				i {
-					position: absolute;
-					float: right;
-					right: 10px;
-					top: 10px;
-					color: white;
-					font-size: 25px;
-					z-index: 2;
-				}
-
-				.el-row {
-					position: absolute;
-					float: right;
-					right: 0;
-					bottom: 0;
-					color: white;
-					display: flex;
-					justify-content: center;
-				}
+			.boke {
+				position: absolute;
+				float: right;
+				right: 10px;
+				top: 17.5px;
+				color: white;
+				font-size: 25px;
+				z-index: 2;
 			}
 
 			#list {
 				width: 100%;
 				position: relative;
+				margin-bottom: 20px;
 
 				.cname {
 					position: absolute;
@@ -294,10 +378,11 @@
 					margin: 0 auto;
 					display: flex;
 					flex-wrap: wrap;
-					justify-content: space-between;
 
 					.friends_picture {
-						margin: 5px 0;
+						margin: 10px 10px;
+						width: 25vw;
+						height: 25vw;
 					}
 				}
 
@@ -358,23 +443,15 @@
 					line-height: 40px;
 				}
 
-				#more_pl {
-					display: flex;
-					justify-content: space-around;
-					width: 98%;
-					margin-bottom: 30px;
+				.more_div {
+					width: 90vw;
+					margin: 0 auto;
+					margin-bottom: 35px;
 
-					.more_plel {
-						width: 20vw;
-					}
-
-					.more_div {
-						width: 75vw;
-
-						.more_pl {
-							display: flex;
-							justify-content: space-between;
-						}
+					.more_pl {
+						display: flex;
+						justify-content: space-between;
+						width: 100%;
 					}
 				}
 
@@ -384,14 +461,19 @@
 					position: fixed;
 					bottom: 0;
 
+					.fpl {
+						background: white;
+					}
+
 					.pl_more {
-						height: 30px;
+						height: 35px;
 						display: flex;
 						justify-content: center;
 						align-items: center;
 
 						i {
 							flex: 1;
+							font-size: 20px;
 							display: flex;
 							justify-content: center;
 							align-items: center;
@@ -400,5 +482,12 @@
 				}
 			}
 		}
+	}
+
+	.ann {
+		width: 70px;
+		height: 40px;
+		position: absolute;
+		right: 0;
 	}
 </style>

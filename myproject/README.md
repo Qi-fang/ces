@@ -2,7 +2,7 @@
 
 ## Project setup
 ```
-npm install
+npm installassetsPublicPath
 ```
 
 ### Compiles and hot-reloads for development
