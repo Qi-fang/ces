@@ -55,7 +55,9 @@
 		methods: {
 			//点击回到博客圈
 			gofriends() {
-				this.$router.go('/friends');
+				this.bock = true;
+				this.ub = false;
+				this.reload();
 			},
 			//发布图片时校验
 			beforeAvatarUpload(file) {
@@ -143,6 +145,7 @@
 			
 			//发布博客
 			submitForm() {
+				let wt = plus.nativeUI.showWaiting();
 				let formdata = new FormData();
 				let _title = this.$refs.text.value;
 				let _content = this.textarea;
@@ -163,8 +166,8 @@
 				// formdata.append("files", this.form.file);
 				if (_content.trim() !== "") {
 					// this.$refs.upload.submit();
-					this.$axios.post(postBlogurl, formdata, config)
-					.then((res) => {
+					this.$axios.post(postBlogurl, formdata, config).then((res) => {
+						plus.nativeUI.closeWaiting();
 						let _code = Number(res.data.code);
 						let res_token = res.data.token;
 						localStorage.setItem("token", res_token);

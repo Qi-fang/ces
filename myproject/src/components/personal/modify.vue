@@ -71,7 +71,8 @@
 		},
 		methods: {
 			myboke() {
-				this.$router.replace('/personal/myboke');
+				// this.$router.replace('/personal/myboke');
+				this.$router.replace('/friends');
 			},
 			grxx() {
 				this.$router.replace('/personal/category');
@@ -86,25 +87,15 @@
 			dhjl() {
 				this.$router.replace('/personal/duihuan');
 			},
-			
 			// 版本更新
 			bbgx() {
-				// this.$camera.getCamera(1).then(function (position) {
-				//    alert("调用摄像头");
-				// });
-				// this.$gallery.pick((path) => {
-				// 	console.log(path);
-				// }).then((position) => {
-				//    alert("调用相册");
-				// });
-				// this.$runtime.openWeb(url).then((position) => {
-				//    alert("调用内置浏览器");
-				// });
+				function getVersionCode(){
+					// 获取apk/ipa版本号
+					alert('Application(apk/ipa) version: ' + plus.runtime.versionCode);
+				}
 				let url = this.$http + "/getAppVer";
 				this.$axios.get(url).then((resp) => {
 					let _code = Number(resp.data.code);
-					let res_token = resp.data.token;
-					localStorage.setItem("token", res_token);
 					if(_code !== -1){
 						this.$notify({
 							title: '成功',
@@ -129,7 +120,7 @@
 			// 退出登录
 			modify_logout() {
 				this.$router.replace('/login');
-				// localStorage.setItem("token", "");
+				localStorage.setItem("token", "");
 			},
 		}
 	}

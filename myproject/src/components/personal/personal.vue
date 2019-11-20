@@ -98,11 +98,13 @@
 			}
 		},
 		created() {
+			let wt = plus.nativeUI.showWaiting();
 			let url = this.$http + "/getMyInfo";
 			let _token = localStorage.getItem("token");
 			this.$axios.get(url, {
 				params: {token: _token}
 			}).then((res) => {
+				plus.nativeUI.closeWaiting();
 				this.cityList.push(res.data.data);
 				let _realname = res.data.data.realname;
 				sessionStorage.setItem("realname", _realname);
@@ -112,6 +114,7 @@
 		},
 		methods: {
 			sign_in() {
+				let wt = plus.nativeUI.showWaiting();
 				this.date = true;
 				let url = this.$http + "/getMyCheckRecord";
 				let postCheckInurl = this.$http + "/postCheckIn";
@@ -130,6 +133,7 @@
 				    }
 				}
 				this.$axios.post(postCheckInurl, data, config).then((resp) => {
+					plus.nativeUI.closeWaiting();
 					let _code = Number(resp.data.code);
 					let res_token = resp.data.token;
 					localStorage.setItem("token", res_token);

@@ -87,6 +87,7 @@
 			};
 		},
 		created() {
+			let wt = plus.nativeUI.showWaiting();
 			let url = this.$http + "/getMyInfo";
 			let url1 = this.$http + "/getPersonStat";
 			let url10 = this.$http + "/getTotalStat";
@@ -116,6 +117,7 @@
 			this.$axios.get(urler, {
 				params: {token: _token}
 			}).then((res) => {
+				plus.nativeUI.closeWaiting();
 				this.url_img = res.data.data;
 				let res_token = res.data.token;
 				localStorage.setItem("token", res_token);

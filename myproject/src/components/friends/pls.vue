@@ -36,20 +36,10 @@
 		data() {
 			return {
 				cityList1: [],
-				cityList20: [],
 				friends_dianz: [],
 				message_number: 0,
 				unbock: true,
 			}
-		},
-		created() {
-			this.$axios.get('http://localhost:8081/test/city').then(res => {
-				if (res.data) {
-					let dat = res.data.cityList;
-					this.cityList1 = dat.slice(4, 5);
-					this.cityList20 = dat.slice(0, 20);
-				}
-			})
 		},
 		methods: {
 			// 点赞
@@ -61,6 +51,7 @@
 			
 			// 更多评论
 			more(e){
+				let wt = plus.nativeUI.showWaiting();
 				this.friends_more = e.target.innerText;
 				let _ID = 1;
 				let _token = localStorage.getItem("token");
@@ -78,6 +69,7 @@
 					}
 				}
 				this.$axios.post(postBlogCommentsurl, data, config).then((res) => {
+					plus.nativeUI.closeWaiting();
 					let _code = Number(res.data.code);
 					if(_code !== -1){
 						console.log(_code);

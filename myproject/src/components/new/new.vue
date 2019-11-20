@@ -30,11 +30,13 @@
 			}
 		},
 		created() {
+			let wt = plus.nativeUI.showWaiting();
 			let url = this.$http + "/activitionList";
 			let _token = localStorage.getItem("token");
 			this.$axios.get(url, {
 				params: {token: _token, pageNumber: 1, pageSize: 10}
 			}).then((resp) => {
+				plus.nativeUI.closeWaiting();
 				this.newList.push(resp.data.data.content);
 				let resp_token = resp.data.token;
 				localStorage.setItem("token", resp_token);

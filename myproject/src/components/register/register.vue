@@ -85,6 +85,7 @@
 		},
 		methods: {
 			submitForm(formName) {
+				let wt = plus.nativeUI.showWaiting();
 				// 密码加密
 				let sha256 = require("js-sha256").sha256;
 				this.pw = sha256(this.$refs.password.value);
@@ -123,6 +124,7 @@
 						}
 						this.$axios.post(url, data, config).then((res) => {
 							this.$axios.post(url1, data1, config).then((res1) => {
+								plus.nativeUI.closeWaiting();
 								const token = res1.data.token;
 								let _code = Number(resp1.data.code);
 								window.localStorage.setItem('token', token);

@@ -133,6 +133,7 @@
 
 			//提现记录
 			getMyMoneyTrans() {
+				let wt = plus.nativeUI.showWaiting();
 				this.tx_show = !this.tx_show;
 				this.tx_hide = !this.tx_hide;
 				let _token = localStorage.getItem("token");
@@ -144,6 +145,7 @@
 						transType: _transType, pageNumber: 1, pageSize: 20
 					}
 				}).then(res => {
+					plus.nativeUI.closeWaiting();
 					let n = localStorage.getItem("n");
 					let res_token = res.data.token;
 					localStorage.setItem("token", res_token);

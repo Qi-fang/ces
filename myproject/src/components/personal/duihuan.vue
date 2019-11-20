@@ -40,6 +40,7 @@
 			}
 		},
 		created() {
+			let wt = plus.nativeUI.showWaiting();
 			let _token = localStorage.getItem("token");
 			let _transType = 0;
 			let url = this.$http + "/getMyMoneyTrans";
@@ -90,6 +91,7 @@
 			this.$axios.get(url, {
 				params: {token: _token, transType: _transType3, pageNumber: 1, pageSize: 20}
 			}).then((res) => {
+				plus.nativeUI.closeWaiting();
 				let _code = Number(res.data.code);
 				if(_code !== -1){
 					this.newList3.push(res.data.data.content);

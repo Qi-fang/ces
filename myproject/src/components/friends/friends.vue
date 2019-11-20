@@ -127,6 +127,7 @@
 			}
 		},
 		created() {
+			let wt = plus.nativeUI.showWaiting();
 			let _token = localStorage.getItem("token");
 			let blogListurl = this.$http + "/blogList";
 			this.$axios.get(blogListurl, {
@@ -136,6 +137,7 @@
 					pageSize: 20
 				}
 			}).then((res) => {
+				plus.nativeUI.closeWaiting();
 				this.cityList1.push(res.data.data.content);
 			}).catch((e) => {
 				console.log("错误信息" + e);
@@ -153,6 +155,7 @@
 
 			//点赞
 			dianz(e) {
+				let wt = plus.nativeUI.showWaiting();
 				let postBlogLikeurl = this.$http + "/postBlogLike";
 				let subid = e.target.innerText;
 				let _blog_id = subid.substring(subid.lastIndexOf("?") + 1);
@@ -168,6 +171,7 @@
 					}
 				}
 				this.$axios.post(postBlogLikeurl, data, config).then((resp) => {
+					plus.nativeUI.closeWaiting();
 					if (Number(resp.data.code) === -1) {
 						this.$notify({
 							title: '提示',
@@ -183,6 +187,7 @@
 			},
 			//点赞1
 			dianz1(e) {
+				let wt = plus.nativeUI.showWaiting();
 				let postBlogLikeurl = this.$http + "/postBlogLike";
 				let _blog_id = sessionStorage.getItem("plid");
 				let _token = localStorage.getItem("token");
@@ -197,6 +202,7 @@
 					}
 				}
 				this.$axios.post(postBlogLikeurl, data, config).then((resp) => {
+					plus.nativeUI.closeWaiting();
 					if (Number(resp.data.code) === -1) {
 						this.$notify({
 							title: '提示',
@@ -213,6 +219,7 @@
 
 			// 更多评论
 			more(e) {
+				let wt = plus.nativeUI.showWaiting();
 				let _token = localStorage.getItem("token");
 				let subid = e.target.innerText;
 				let _blogId = subid.substring(subid.lastIndexOf("?") + 1);
@@ -223,6 +230,7 @@
 						blogId: _blogId
 					}
 				}).then((res) => {
+					plus.nativeUI.closeWaiting();
 					let _code = Number(res.data.code);
 					if (_code !== -1) {
 						let pls = e.target.innerText;
@@ -247,6 +255,7 @@
 
 			// 评论
 			onSubmit() {
+				let wt = plus.nativeUI.showWaiting();
 				let _blog_id = sessionStorage.getItem("plid");
 				let _content = this.user;
 				let _token = localStorage.getItem("token");
@@ -263,6 +272,7 @@
 					}
 				}
 				this.$axios.post(url, data, config).then((res) => {
+					plus.nativeUI.closeWaiting();
 					let _code = Number(res.data.code);
 					if (_code !== -1) {
 						this.$notify({

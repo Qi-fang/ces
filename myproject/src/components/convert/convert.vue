@@ -119,6 +119,7 @@
 			}
 		},
 		created() {
+			let wt = plus.nativeUI.showWaiting();
 			let _token = localStorage.getItem("token");
 			let url = this.$http + "/webSiteRecordList";
 			let url1 = this.$http + "/getMyInfo";
@@ -140,6 +141,7 @@
 					token: _token
 				}
 			}).then((res1) => {
+				plus.nativeUI.closeWaiting();
 				this.convertm = res1.data.data.moneyLast;
 				let res1_token = res1.data.token;
 				localStorage.setItem("token", res1_token);
@@ -153,11 +155,11 @@
 		methods: {
 			//查看兑换账号
 			centerDia(e) {
+				let wt = plus.nativeUI.showWaiting();
 				this.cityList_e = e.target.src;
 				this.centerDialogVisible = true;
 				let _token = localStorage.getItem("token");
 				let cscsid = Number(e.target.innerHTML.slice(64));
-				console.log(e.target.innerHTML);
 				sessionStorage.setItem("cscsid", cscsid);
 				let _webSiteId = sessionStorage.getItem("cscsid");
 				sessionStorage.setItem("cscsid", "");
@@ -169,6 +171,7 @@
 						webSiteId: _webSiteId
 					}
 				}).then((res) => {
+					plus.nativeUI.closeWaiting();
 					let res_token = res.data.token;
 					localStorage.setItem("token", res_token);
 					if (res.data.data.account) {
@@ -221,6 +224,7 @@
 
 			//绑定账号
 			convertbind(ruleForm1) {
+				let wt = plus.nativeUI.showWaiting();
 				//提交
 				this.$refs[ruleForm1].validate((valid) => {
 					if (valid) {
@@ -241,6 +245,7 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((resp) => {
+							plus.nativeUI.closeWaiting();
 							let _code = Number(resp.data.code);
 							if (_code !== -1) {
 								let resp_token = resp.data.token;
@@ -267,6 +272,7 @@
 
 			//充值
 			converttransaction(ruleForm2) {
+				let wt = plus.nativeUI.showWaiting();
 				// 密码加密
 				let sha256 = require("js-sha256").sha256;
 				this.pw = sha256(this.$refs.transaction.value);
@@ -294,6 +300,7 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((res) => {
+							plus.nativeUI.closeWaiting();
 							let _code = Number(res.data.code);
 							if (_code !== -1) {
 								this.$notify({

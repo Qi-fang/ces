@@ -98,7 +98,6 @@
 					</span>
 				</el-dialog>
 				<!-- 找回密码 -->
-				<div class="sub-title">找回密码方式一：</div>
 				<el-form :model="ruleForm2" :rules="rules" ref="ruleForm2" label-width="70px" class="demo-ruleForm2">
 					<el-form-item label="手机号:" prop="phone2">
 						<el-input id="phone2" ref="phone2" v-model="ruleForm2.phone2" placeholder="请输入手机号码" clearable></el-input>
@@ -108,8 +107,6 @@
 						<input id="phone_btn" class="ann" type="button" v-model="count" @click="btnCheck2()">
 					</el-form-item>
 				</el-form>
-				<div class="sub-title">找回密码方式二：</div>
-				<el-button style="width: 126px; height: 40px;" type="info" @click="fv">自拍头像找回</el-button>
 				<span slot="footer" class="dialog-footer">
 					<el-button class="ann" @click="outerVisible_fp= false, close_fp()">取 消</el-button>
 					<el-button class="ann" type="primary" @click="forget2('ruleForm2')">确 定</el-button>
@@ -280,6 +277,7 @@
 
 			//修改用户名
 			modify_name(form) {
+				let wt = plus.nativeUI.showWaiting();
 				//提交
 				this.$refs[form].validate((valid) => {
 					if (valid) {
@@ -302,6 +300,7 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((res) => {
+							plus.nativeUI.closeWaiting();
 							let _code = Number(res.data.code);
 							let res_token = res.data.token;
 							localStorage.setItem("token", res_token);
@@ -370,6 +369,7 @@
 
 			//更改手机号
 			forget1(formName2) {
+				let wt = plus.nativeUI.showWaiting();
 				//提交
 				this.$refs[formName2].validate((valid) => {
 					if (valid) {
@@ -389,6 +389,7 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((res) => {
+							plus.nativeUI.closeWaiting();
 							let _code = Number(res.data.code);
 							let res_token = res.data.token;
 							localStorage.setItem("token", res_token);
@@ -419,8 +420,6 @@
 			
 			//头像认证
 			faceReg(){
-				
-				let that = this;
 				//调用原生系统弹出按钮选择框
 				let page = null;
 				page={ 
@@ -428,16 +427,12 @@
 						plus.nativeUI.actionSheet(
 							{cancel:"取消",buttons:[ 
 							{title:"拍照"}, 
-							// {title:"从相册中选择"} 
 						]}, function(e){
 							//1 是拍照  2 从相册中选择 
 							switch(e.index){ 
 								case 1:
 								getImage();
 								break; 
-								// case 2:
-								// appendByGallery();
-								// break; 
 								default:
 								break;    
 							} 
@@ -450,10 +445,7 @@
 					cmr.captureImage(function(p){
 						plus.io.resolveLocalFileSystemURL(p, function(entry){
 							var path = entry.toLocalURL();
-							//文件传转base64方法
-							that.imgPreviewnew(path, _typedata);
-							console.log(path);
-							console.log(that.imgPreviewnew(path, _typedata));
+							resizeImage(path);
 						}, function(e){
 							console.log("读取拍照文件错误："+e.message);
 						});
@@ -461,84 +453,50 @@
 						console.log("读取拍照文件错误："+e.message);
 					}, {filename:'_doc/camera/',index:1});
 				}
-							
-				//选择相片文件
-				function appendByGallery(){
-					plus.gallery.pick(function(path){
-						//文件传转base64方法
-						that.imgPreviewnew(path, _typedata);
-					});
-				}
-				// 弹出系统选择按钮框  
-				page.imgUp();
 				
-				let _file = 2;
-				let _token = localStorage.getItem("token");
-				let url = this.$http + "/faceReg";
-				let _data = {
-					file: _file,
-					token: _token
+				//再对图片进行压缩为270*270，再上传到服务器  
+				function resizeImage(src) {  
+					let _dst = new Date().getTime();
+				  plus.zip.compressImage(  
+				    {  
+				      src: src,
+				      dst: '_doc/' + _dst + '.jpg',
+				      overwrite: true,
+				      width: '800px', //这里指定了宽度，同样可以修改  
+				      width: '600px', //这里指定了高度
+				      format: 'jpg',  
+				      quality: 100  //图片质量不再修改，以免失真  
+				    },  
+				    function(e) {  
+				      plus.nativeUI.closeWaiting();  
+				      uploadImg(e.target);  //上传图片, e.target存的是本地路径！  
+				    },  
+				    function(err) {  
+				      plus.nativeUI.alert('未知错误！',function() {  
+				        // mui.back();  
+				      });  
+				    }  
+				  );  
 				}
-				let data = this.$qs.stringify(_data);
-				let config = {
-				    headers: {
-				        'Content-Type': 'application/x-www-form-urlencoded'
-				    }
-				}
-				this.$axios.post(url, data, config).then((res) => {
-				}).catch((err) => {
-					console.log("错误信息" + err);
-				})
-			},
-			
-			//头像头像找回密码
-			fv(){
-				let that = this;
-				//调用原生系统弹出按钮选择框
-				let page = null;
-				page={ 
-					imgUp:function(){ 
-						plus.nativeUI.actionSheet(
-							{cancel:"取消",buttons:[ 
-							{title:"拍照"}, 
-							// {title:"从相册中选择"} 
-						]}, function(e){
-							//1 是拍照  2 从相册中选择 
-							switch(e.index){ 
-								case 1:
-								getImage();
-								break; 
-								// case 2:
-								// appendByGallery();
-								// break; 
-								default:
-								break;    
-							} 
-						}); 
-					} 
-				}
-				// 拍照函数
-				function getImage(){
-					let cmr = plus.camera.getCamera();
-					cmr.captureImage(function(p){
-						plus.io.resolveLocalFileSystemURL(p, function(entry){
-							var path = entry.toLocalURL();
-							//文件传转base64方法
-							that.imgPreviewnew(path, _typedata);
-						}, function(e){
-							console.log("读取拍照文件错误："+e.message);
-						});
-					}, function(e){
-						console.log("读取拍照文件错误："+e.message);
-					}, {filename:'_doc/camera/',index:1});
-				}
-							
-				//选择相片文件
-				function appendByGallery(){
-					plus.gallery.pick(function(path){
-						//文件传转base64方法
-						that.imgPreviewnew(path, _typedata);
-					});
+				let _this = this;
+				function uploadImg(src) {  
+					let url = _this.$http + "/faceReg";
+					let _token = localStorage.getItem("token");
+					var task = plus.uploader.createUpload(url, {  
+						method: 'post',   
+						blocksize: 204800,  
+						timeout: 10
+					});  
+					
+					task.addFile(src, {key: 'file'});
+					task.addData('token', _token);
+					task.addEventListener('statechanged', stateChanged, false);
+					task.start();
+					function stateChanged(upload, status) {
+						if (upload.state == 4 && status == 200 ) {  
+						  plus.uploader.clear();  //清除上传  
+						}  
+					}  
 				}
 				// 弹出系统选择按钮框  
 				page.imgUp();
@@ -546,6 +504,7 @@
 			
 			//更改支付密码
 			setc(formName1) {
+				let wt = plus.nativeUI.showWaiting();
 				// 密码加密
 				let sha256 = require("js-sha256").sha256;
 				this.n_t = sha256(this.$refs.new_transaction.value);
@@ -567,6 +526,7 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((response) => {
+							plus.nativeUI.closeWaiting();
 							let _code = Number(response.data.code);
 							let res_token = response.data.token;
 							localStorage.setItem("token", res_token);
@@ -651,6 +611,7 @@
 
 			//忘记密码
 			forget2(formName2) {
+				let wt = plus.nativeUI.showWaiting();
 				//提交
 				this.$refs[formName2].validate((valid) => {
 					if (valid) {
@@ -668,6 +629,7 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((resp1) => {
+							plus.nativeUI.closeWaiting();
 							let _code = Number(resp1.data.code);
 							let res_token = resp1.data.token;
 							localStorage.setItem("token", res_token);
@@ -693,6 +655,7 @@
 
 			//修改密码
 			set(formName3) {
+				let wt = plus.nativeUI.showWaiting();
 				// 密码加密
 				let sha256 = require("js-sha256").sha256;
 				this.n_pw = sha256(this.$refs.new_password.value);
@@ -714,7 +677,7 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((response) => {
-							console.log(response);
+							plus.nativeUI.closeWaiting();
 							let _code = Number(response.data.code);
 							let res_token = response.data.token;
 							localStorage.setItem("token", res_token);
