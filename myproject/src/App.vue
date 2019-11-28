@@ -80,7 +80,8 @@
 					this.elMain3.color = "";
 					this.elMain4.color = "#ff6700";
 					this.elMain5.color = "";
-				}else if(newVal === '/personal' || newVal === '/personal/category' || newVal === '/personal/mybankcards' || newVal === '/personal/tixian' || newVal === '/personal/duihuan'){
+				}else if(newVal === '/personal' || newVal === '/personal/category' || newVal === '/personal/mybankcards'
+				 || newVal === '/personal/tixian' || newVal === '/personal/duihuan' || newVal === '/personal/renz'){
 					this.elMain1.color = "";
 					this.elMain2.color = "";
 					this.elMain3.color = "";

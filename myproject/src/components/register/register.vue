@@ -87,18 +87,15 @@
 			submitForm(formName) {
 				let wt = plus.nativeUI.showWaiting();
 				// 密码加密
-				let sha256 = require("js-sha256").sha256;
-				this.pw = sha256(this.$refs.password.value);
-				this.pwd = sha256(this.$refs.pword.value);
-				
-				// 密码加密
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						let _account = this.$refs.r_account.value;
+						sessionStorage.setItem("_account", _account);
 						let _nickname = this.$refs.r_nickname.value;
-						let _passwd = this.pw;
-						let _moneyPasswd = this.pwd;
+						let _passwd = this.$refs.password.value;
+						let _moneyPasswd = this.$refs.pword.value;
 						let _realname = this.$refs.name.value;
+						localStorage.setItem("realname", _realname);
 						let _code = "0";
 						
 						let url = this.$http + "/reg";
@@ -126,7 +123,7 @@
 							this.$axios.post(url1, data1, config).then((res1) => {
 								plus.nativeUI.closeWaiting();
 								const token = res1.data.token;
-								let _code = Number(resp1.data.code);
+								let _code = Number(res1.data.code);
 								window.localStorage.setItem('token', token);
 								if(_code !== -1){
 									this.$router.replace('/recommend');

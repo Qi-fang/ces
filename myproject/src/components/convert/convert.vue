@@ -4,18 +4,19 @@
 			<el-header>钱包余额转换区</el-header>
 		</el-container>
 		<el-link :underline="false" v-for="item1 in newList" :key="item1.ID">
-			<el-link v-for="item in item1" :key="item.ID">
+			<el-link v-for="item in item1" :key="item.id">
 				<el-button class="convertbtn" type="primary" size="mini" style="margin-top: 10px;" @click="bindusername($event)">
 					绑定网站账号
 					<span style="display: none;">{{item.id}}</span>
 				</el-button>
+				
 				<el-button class="convertbtn" type="primary" size="mini" @click="bindmoney">余额转入</el-button>
+				
 				<el-button class="convertbtn" type="primary" size="mini" @click="url($event)">
 					进入网站
 					<span style="display: none;">*{{item.url}}?</span>
 				</el-button>
-				<!-- <el-link class="item_url" type="primary" target="_blank" :href="item.url">进入网站</el-link> -->
-				<el-image style="width: 100%; height: 150px" :src="item.img" @click="centerDia($event)"></el-image>
+				<el-image style="width: 100%; height: 150px" :id="item.id" :src="item.img" @click="centerDia($event)"></el-image>
 			</el-link>
 		</el-link>
 
@@ -23,7 +24,7 @@
 			<el-image style="width: 100%; height: 100%" :src="cityList_e"></el-image>
 			<div>{{convert_content}}</div>
 			<span>兑换账号：</span>{{convert_account}}<br />
-			<el-button class="convertbtn" type="primary" size="mini" style="margin-top: 5px;">下载App</el-button>
+			<el-button class="convertbtn" type="primary" size="mini" style="margin-top: 5px;" @click="downl">下载App</el-button>
 		</el-dialog>
 		<el-dialog title="绑定账号" :visible.sync="buDialogVisible" width="90%" center append-to-body>
 			<el-form :model="ruleForm1" :rules="rules" ref="ruleForm1" label-width="90px" class="demo-ruleForm1">
@@ -130,7 +131,11 @@
 					pageSize: 10
 				}
 			}).then((res) => {
-				this.newList.push(res.data.data.content);
+				let _newList = [];
+				_newList.push(res.data.data.content);
+				this.newList = _newList.reverse();
+				let _len = res.data.data.content.length;
+				localStorage.setItem("len", _len);
 				let res_token = res.data.token;
 				localStorage.setItem("token", res_token);
 			}).catch((e) => {
@@ -153,16 +158,15 @@
 			})
 		},
 		methods: {
-			//查看兑换账号
+			// 查看详情
 			centerDia(e) {
 				let wt = plus.nativeUI.showWaiting();
 				this.cityList_e = e.target.src;
 				this.centerDialogVisible = true;
 				let _token = localStorage.getItem("token");
-				let cscsid = Number(e.target.innerHTML.slice(64));
+				let cscsid = Number(e.target.id);
 				sessionStorage.setItem("cscsid", cscsid);
 				let _webSiteId = sessionStorage.getItem("cscsid");
-				sessionStorage.setItem("cscsid", "");
 				let url = this.$http + "/getTransAccount";
 				let urlr = this.$http + "/webSiteRecordList";
 				this.$axios.get(url, {
@@ -190,7 +194,10 @@
 					this.newList.push(res.data.data.content);
 					let res_token = res.data.token;
 					localStorage.setItem("token", res_token);
-					this.convert_content = res.data.data.content[cscsid].content;
+					let clen = Number(localStorage.getItem("len")) - Number(cscsid);
+					this.convert_content = res.data.data.content[clen].content;
+					let url_item = res.data.data.content[clen].url;
+					localStorage.setItem("url_item", url_item);
 				}).catch((e) => {
 					console.log("错误信息" + e);
 				})
@@ -210,12 +217,25 @@
 			url(e) {
 				let ui = e.target.innerHTML;
 				let url_item = ui.slice(ui.indexOf("*") + 1, ui.indexOf("?"));
-				console.log(url_item);
 				//调用原生系统弹出按钮选择框
 				let page = null;
 				page = {
 					imgUp: function() {
 						plus.runtime.openURL(url_item);
+					}
+				}
+				// 弹出系统选择按钮框
+				page.imgUp();
+			},
+			
+			// 下载
+			downl() {
+				let _urlitem = localStorage.getItem("url_item");
+				//调用原生系统弹出按钮选择框
+				let page = null;
+				page = {
+					imgUp: function() {
+						plus.runtime.openURL(_urlitem);
 					}
 				}
 				// 弹出系统选择按钮框
@@ -231,6 +251,7 @@
 						let url = this.$http + "/bindTransAccount";
 						let _account = this.$refs.website_username.value;
 						let _webSiteRecord_id = sessionStorage.getItem("scsid");
+						console.log(_webSiteRecord_id);
 						// sessionStorage.setItem("scsid", "");
 						let _token = localStorage.getItem("token");
 						let _data = {
@@ -272,7 +293,6 @@
 
 			//充值
 			converttransaction(ruleForm2) {
-				let wt = plus.nativeUI.showWaiting();
 				// 密码加密
 				let sha256 = require("js-sha256").sha256;
 				this.pw = sha256(this.$refs.transaction.value);
@@ -300,7 +320,6 @@
 							}
 						}
 						this.$axios.post(url, data, config).then((res) => {
-							plus.nativeUI.closeWaiting();
 							let _code = Number(res.data.code);
 							if (_code !== -1) {
 								this.$notify({

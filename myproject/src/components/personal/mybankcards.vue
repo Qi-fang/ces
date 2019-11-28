@@ -97,7 +97,6 @@
 			
 			//移除银行卡
 			handleRemove(e) {
-				let wt = plus.nativeUI.showWaiting();
 				let url = this.$http + "/deleteBankcards";
 				let _token = localStorage.getItem("token");
 				let subid = e.target.innerHTML;
@@ -118,7 +117,6 @@
 					type: 'warning'
 				}).then(() => {
 					this.$axios.post(url, data, config).then((resp) => {
-						plus.nativeUI.closeWaiting();
 						let _code = Number(resp.data.code);
 						let res_token = resp.data.token;
 						localStorage.setItem("token", res_token);

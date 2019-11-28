@@ -8,7 +8,8 @@
 			<ul class="list" v-for="fit1 in cityList1">
 				<li id='list' v-for="fit in fit1">
 					<!-- <div @click="myboke"> -->
-					<el-avatar :size="50" :src="url"></el-avatar>
+					<el-avatar :size="50" :src="fit.publisher.headImg" v-if="fit.publisher.headImg"></el-avatar>
+					<img src="../../assets/logo.png" style="width: 50px; height: 50px; border-radius: 50px;" v-if="!fit.publisher.headImg" />
 					<!-- </div> -->
 					<p class='cname' style='overflow: hidden;white-space: nowrap;text-overflow: ellipsis;'>
 						{{fit.publisher.nickname}}<br />
@@ -26,26 +27,28 @@
 						</div>
 					</div>
 					<div id="friends_picture">
-						<el-image class="friends_picture" 
-						v-if="String(fit.imgs).indexOf('.jpg') > 0 ? true : false" :src="
-						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(0, 56) : fit.imgs
-						"></el-image>
-						<el-image class="friends_picture" 
-						v-if="String(fit.imgs).indexOf('.jpg', 60) > 0 ? true : false" :src="
-						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(57, 113) : fit.imgs
-						"></el-image>
-						<el-image class="friends_picture"
-						v-if="String(fit.imgs).indexOf('.jpg', 120) > 0 ? true : false" :src="
-						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(114, 170) : fit.imgs
-						"></el-image>
-						<el-image class="friends_picture"
-						 v-if="String(fit.imgs).indexOf('.jpg', 180) > 0 ? true : false" :src="
-						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(171, 227) : fit.imgs
-						"></el-image>
-						<el-image class="friends_picture"
-						 v-if="String(fit.imgs).indexOf('.jpg', 230) > 0 ? true : false" :src="
-						String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(228, 284) : fit.imgs
-						"></el-image>
+						<viewer class="viewer" ref="viewer">
+							<img class="friends_picture"
+							v-if="String(fit.imgs).indexOf('.jpg') > 0 ? true : false" :src="
+							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(0, 59) : fit.imgs
+							"></img>
+							<img class="friends_picture" 
+							v-if="String(fit.imgs).indexOf('.jpg', 60) > 0 ? true : false" :src="
+							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(60, 119) : fit.imgs
+							"></img>
+							<img class="friends_picture" 
+							v-if="String(fit.imgs).indexOf('.jpg', 120) > 0 ? true : false" :src="
+							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(120, 179) : fit.imgs
+							"></img>
+							<img class="friends_picture" 
+							 v-if="String(fit.imgs).indexOf('.jpg', 180) > 0 ? true : false" :src="
+							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(180, 239) : fit.imgs
+							"></img>
+							<img class="friends_picture" 
+							 v-if="String(fit.imgs).indexOf('.jpg', 240) > 0 ? true : false" :src="
+							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(240, 299) : fit.imgs
+							"></img>
+						</viewer>
 					</div>
 					<div class='pldz'>
 						<i class="el-icon-chat-line-round" @click="more($event)"> {{fit.commentsNumber}}<span style="color: white;">?{{fit.id}}</span></i>&nbsp;&nbsp;
@@ -123,7 +126,12 @@
 				text: '',
 				fpl: false,
 				blogCommentsList: [],
-				url: "https://avatars3.githubusercontent.com/u/5277268?s=460&v=4",
+				msg: 'vue2-viewer-test',
+				imageList: [
+					'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1550224739247&di=512032866bea6329b1e46c735d50ac8b&imgtype=0&src=http%3A%2F%2Fimglf2.ph.126.net%2FdHH6OM2rD8JucPGAotUfag%3D%3D%2F6608219914074710297.jpg',
+					'https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=488030022,1694816207&fm=173&app=25&f=JPEG?w=580&h=347&s=A08FB35A5E0616C664F5631C030010D6',
+					'https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=2574767313,3929397124&fm=173&app=25&f=JPEG?w=580&h=868&s=B784EEA3460236E17A1F137F0300A058'
+				]
 			}
 		},
 		created() {
@@ -139,6 +147,7 @@
 			}).then((res) => {
 				plus.nativeUI.closeWaiting();
 				this.cityList1.push(res.data.data.content);
+				this.url = localStorage.getItem("headurl");
 			}).catch((e) => {
 				console.log("错误信息" + e);
 			})

@@ -25,6 +25,7 @@ export default new Router({
 			{path: "category", name: "category", meta: {keepAlive: true}, component:() => import(/* webpackChunkName: 'category' */ '@/components/personal/category')},
 			{path: "mybankcards", name: "mybankcards", component: () => import(/* webpackChunkName: 'mybankcards' */ '@/components/personal/mybankcards')},
 			{path: "tixian", name: "tixian", component: () => import(/* webpackChunkName: 'tixian' */ '@/components/personal/tixian')},
+			{path: "renz", name: "renz", component: () => import(/* webpackChunkName: 'renz' */ '@/components/personal/renz')},
 			{path: "duihuan", name: "duihuan", component: () => import(/* webpackChunkName: 'duihuan' */ '@/components/personal/duihuan')}
 		]
 	}
