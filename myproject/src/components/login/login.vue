@@ -19,7 +19,7 @@
 			</el-form>
 			<div>
 				<!-- <el-link href="" type="primary">账号找回</el-link> -->
-				<el-button class="forgot_password" type="text" @click="outerVisible = true">忘记密码</el-button>
+				<el-button class="forgot_password" type="text" @click="outerVisible = true; ov()">忘记密码</el-button>
 				<el-dialog class="dialog1" title="找回密码" :visible.sync="outerVisible" width="85%">
 
 					<!-- 设置新密码 -->
@@ -48,7 +48,8 @@
 					</el-form>
 					
 					<div class="sub-title">找回密码方式二：</div>
-					<el-button type="info" @click="tx">头像找回</el-button>
+					<el-button type="info" :disabled="disa" @click="tx" v-if="logdisa">头像找回</el-button>
+					<el-button type="info" :disabled="!disa" v-if="!logdisa">未认证</el-button>
 					
 					<span slot="footer" class="dialog-footer">
 						<el-button @click="outerVisible = false">取 消</el-button>
@@ -171,6 +172,8 @@
 						validator: validatePass,
 						trigger: 'blur'
 					}],
+					disa: false,
+					logdisa: true,
 				}
 			}
 		},
@@ -183,7 +186,7 @@
 					if (valid) {
 						let _username = this.$refs.username.value;
 						let _passwd = this.$refs.password.value;
-						sessionStorage.setItem("_account", _username);
+						localStorage.setItem("_account", _username);
 						let url = this.$http + '/login';
 						let _data = {
 							username: _username,
@@ -273,7 +276,7 @@
 				this.$refs[formName3].validate((valid) => {
 					if (valid) {
 						let _newpasswd = this.$refs.new_password.value;
-						let _account = sessionStorage.getItem("_account");
+						let _account = localStorage.getItem("_account");
 						let url = this.$http + "/changePasswd";
 						let _data = {
 							newpasswd: _newpasswd,
@@ -326,6 +329,14 @@
 			close(){
 				this.txzh = false;
 				this.outerVisible = true;
+			},
+			
+			ov(){
+				let _v = localStorage.getItem("validStatus");
+				if(_v('face') > -1){
+					this.disa = true;
+					this.logdisa = false;
+				}
 			},
 			
 			// 头像认证找回密码

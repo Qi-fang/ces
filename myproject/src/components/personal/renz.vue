@@ -153,15 +153,15 @@
 					}, {filename:'_doc/camera/',index:1});
 				}
 				
-				//再对图片进行压缩为270*270，再上传到服务器  
+				//再对图片进行压缩为1920*1080，再上传到服务器  
 				function resizeImage(src) {  
 					let _dst = new Date().getTime();
 					plus.zip.compressImage({  
 						  src: src,
 						  dst: '_doc/' + _dst + '.jpg',
 						  overwrite: true,
-						  width: '1920px', //这里指定了宽度，同样可以修改  
-						  width: '1080px', //这里指定了高度
+						  width: '480px', //这里指定了宽度，同样可以修改  
+						  height: '640px', //这里指定了高度
 						  format: 'jpg',  
 						  quality: 100  //图片质量不再修改，以免失真  
 						},  
@@ -184,17 +184,20 @@
 						method: 'post',   
 						blocksize: 204800,  
 						timeout: 10
+					}, function(upload, status) {
+						if (status == 200 ) {  
+							let resp = upload.responseText.slice(8, 9);
+						  if(resp == 0){
+						  	alert("登记成功");
+						  } else {
+						  	alert("登记失败，请重新拍照上传");
+						  }
+						}
+						plus.uploader.clear();  //清除上传  
 					});  
 					task.addFile(src, {key: 'file'});
 					task.addData('token', _token);
-					task.addEventListener('statechanged', stateChanged, false);
 					task.start();
-					function stateChanged(upload, status) {
-						console.log(upload.responseText);
-						if (upload.state == 4 && status == 200 ) {  
-						  plus.uploader.clear();  //清除上传  
-						}  
-					}  
 				}
 				// 弹出系统选择按钮框  
 				page.imgUp();
@@ -236,15 +239,15 @@
 					}, {filename:'_doc/camera/',index:1});
 				}
 				
-				//再对图片进行压缩为270*270，再上传到服务器  
+				//再对图片进行压缩为1920*1080，再上传到服务器  
 				function resizeImage(src) {  
 					let _dst = new Date().getTime();
 					plus.zip.compressImage({  
 						  src: src,
 						  dst: '_doc/' + _dst + '.jpg',
 						  overwrite: true,
-						  width: '1920px', //这里指定了宽度，同样可以修改  
-						  width: '1080px', //这里指定了高度
+						  width: '480px', //这里指定了宽度，同样可以修改  
+						  height: '640px', //这里指定了高度
 						  format: 'jpg',  
 						  quality: 100  //图片质量不再修改，以免失真  
 						},  
@@ -261,25 +264,26 @@
 				}
 				let _this = this;
 				function uploadImg(src) {  
-					let url = _this.$http + "/faceReg";
-					let _token = localStorage.getItem("token");
-					
 					let url1 = _this.$http + "/faceValid";
+					let _account = localStorage.getItem("_account");
 					var task1 = plus.uploader.createUpload(url1, {
 						method: 'post',   
 						blocksize: 204800,  
 						timeout: 10
+					}, function(upload, status) {
+						if (status == 200 ) { 
+							let resp = upload.responseText.slice(8, 9);
+						  if(resp == 0){
+							  alert("认证成功");
+						  } else {
+							  alert("验证失败，请重新拍照上传");
+						  }
+						}
+						plus.uploader.clear();  //清除上传  
 					}); 
 					task1.addFile(src, {key: 'file'});
-					task1.addData('token', _token);
-					task1.addEventListener('sc', sC, false);
+					task1.addData('account', _account);
 					task1.start();
-					function sC(upload, status) {
-						console.log(upload.responseText);
-						if (upload.state == 4 && status == 200 ) { 
-						  plus.uploader.clear();  //清除上传  
-						}
-					}
 				}
 				// 弹出系统选择按钮框  
 				page.imgUp();
@@ -450,7 +454,7 @@
 				border: none;
 				border-radius: 5px;
 				// background: rgb(157, 218, 129);
-				background: rgb(202, 235, 186);
+				background: #4d80e6;
 				color: white;
 			
 				.span {

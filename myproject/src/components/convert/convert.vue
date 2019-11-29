@@ -131,9 +131,7 @@
 					pageSize: 10
 				}
 			}).then((res) => {
-				let _newList = [];
-				_newList.push(res.data.data.content);
-				this.newList = _newList.reverse();
+				this.newList.push(res.data.data.content);
 				let _len = res.data.data.content.length;
 				localStorage.setItem("len", _len);
 				let res_token = res.data.token;
@@ -176,10 +174,18 @@
 					}
 				}).then((res) => {
 					plus.nativeUI.closeWaiting();
-					let res_token = res.data.token;
-					localStorage.setItem("token", res_token);
-					if (res.data.data.account) {
-						this.convert_account = res.data.data.account;
+					if(res.data.code !== -1){
+						let res_token = res.data.token;
+						localStorage.setItem("token", res_token);
+						if (res.data.data.account) {
+							this.convert_account = res.data.data.account;
+						}
+					} else {
+						this.$notify({
+							title: '提示',
+							message: res.data.message,
+							type: 'warning'
+						});
 					}
 				}).catch((e) => {
 					console.log("错误信息" + e);
@@ -191,13 +197,21 @@
 						pageSize: 10
 					}
 				}).then((res) => {
-					this.newList.push(res.data.data.content);
-					let res_token = res.data.token;
-					localStorage.setItem("token", res_token);
-					let clen = Number(localStorage.getItem("len")) - Number(cscsid);
-					this.convert_content = res.data.data.content[clen].content;
-					let url_item = res.data.data.content[clen].url;
-					localStorage.setItem("url_item", url_item);
+					if(res.data.code !== -1){
+						this.newList.push(res.data.data.content);
+						let res_token = res.data.token;
+						localStorage.setItem("token", res_token);
+						let clen = Number(localStorage.getItem("len")) - Number(cscsid);
+						this.convert_content = res.data.data.content[clen].content;
+						let url_item = res.data.data.content[clen].url;
+						localStorage.setItem("url_item", url_item);
+					} else {
+						this.$notify({
+							title: '提示',
+							message: res.data.message,
+							type: 'warning'
+						});
+					}
 				}).catch((e) => {
 					console.log("错误信息" + e);
 				})

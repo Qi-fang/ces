@@ -109,10 +109,10 @@
 				let nickname = res.data.data.nickname;
 				let real_name = res.data.data.realname;
 				let head_url = res.data.data.headImg;
-				localStorage.setItem("validStatus", _v);
 				localStorage.setItem("nickname", nickname);
 				localStorage.setItem("realname", real_name);
 				localStorage.setItem("headurl", head_url);
+				localStorage.setItem("validStatus", _v);
 				if(res.data.data.headImg != "null"){
 					this.url = res.data.data.headImg;
 				} else {
@@ -286,7 +286,7 @@
 					  dst: '_doc/' + _dst + '.jpg',
 					  overwrite: true,
 					  width: '300px', //这里指定了宽度，同样可以修改  
-					  width: '300px', //这里指定了高度
+					  height: '300px', //这里指定了高度
 					  format: 'jpg',  
 					  quality: 100  //图片质量不再修改，以免失真  
 					},  
@@ -306,63 +306,26 @@
 					let url = _this.$http + "/changeMyInfo";
 					let _nickname = localStorage.getItem("nickname");
 					let _realname = localStorage.getItem("realname");
-					// let _data = {
-					// 	file: src,
-					// 	nickname: _nickname,
-					// 	realname: _realname,
-					// 	token: _token
-					// }
-					// let data = _this.$qs.stringify(_data);
-					// let config = {
-					// 	headers: {
-					// 		'Content-Type': 'multipart/form-data'
-					// 	}
-					// }
-					// _this.$axios.post(url, data, config).then((res) => {
-					// 	let _code = Number(res.data.code);
-					// 	if(_code !== -1){
-					// 		_this.$notify({
-					// 			title: '提示',
-					// 			message: res.data.message,
-					// 			type: 'success'
-					// 		});
-					// 		let newtoken = res.data.token;
-					// 		localStorage.setItem("token", newtoken);
-					// 		this.innerVisible = true;
-					// 	}else{
-					// 		_this.$notify({
-					// 			title: '提示',
-					// 			message: res.data.message,
-					// 			type: 'warning'
-					// 		});
-					// 	}
-					// }).catch((err) => {
-					// 	console.log("错误信息" + err);
-					// })
-					
 					var task = plus.uploader.createUpload(url, {
 						method: 'post',   
 						blocksize: 204800,  
 						timeout: 10
-					});  
+					}, function(upload, status) {
+						if (status == 200 ) {  
+							let resp = upload.responseText.slice(8, 9);
+						  if(resp == 0){
+						  	alert("上传成功");
+						  } else {
+						  	alert("上传失败，请重新拍照上传");
+						  }
+						}
+						plus.uploader.clear();  //清除上传  
+					});
 					task.addFile(src, {key: 'file'});
 					task.addData('token', _token);
 					task.addData('nickname', _nickname);
 					task.addData('realname', _realname);
-					task.addEventListener('statechanged', stateChanged, false);
 					task.start();
-					function stateChanged(upload, status) {
-						console.log(upload.responseText);
-						if (upload.state == 4 && status == 200 ) {  
-						  plus.uploader.clear();  //清除上传  
-						}  
-					}  
-					
-					function stateChanged(upload, status) {
-						if (upload.state == 4 && upload.status == 200 ) {
-							plus.uploader.clear();  //清除上传
-						}
-					}
 				}
 				// 弹出系统选择按钮框
 				page.imgUp();

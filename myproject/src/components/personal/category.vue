@@ -444,7 +444,7 @@
 				this.$refs[formName3].validate((valid) => {
 					if (valid) {
 						let _newpasswd = this.$refs.new_password.value;
-						let _account = sessionStorage.getItem("_account");
+						let _account = localStorage.getItem("_account");
 						let url = this.$http + "/changePasswd";
 						let _data = {
 							newpasswd: _newpasswd,
@@ -548,7 +548,7 @@
 				border: none;
 				border-radius: 5px;
 				// background: rgb(157, 218, 129);
-				background: rgb(202, 235, 186);
+				background: #4d80e6;
 				color: white;
 			
 				span {

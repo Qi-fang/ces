@@ -108,9 +108,17 @@
 			bbgx() {
 				let url = this.$http + "/getAppVer";
 				this.$axios.get(url).then((resp) => {
-					let bb = resp.data.data.content;
-					localStorage.setItem("bb", bb);
-					getVersion();
+					if (Number(resp.data.code !== -1)) {
+						let bb = resp.data.data.content;
+						localStorage.setItem("bb", bb);
+						getVersion();
+					} else{
+						this.$message({
+							title: '提示',
+							message: resp.data.message,
+							type: 'warning'
+						});
+					}
 				}).catch((err) => {
 					console.log("错误信息" + err);
 				})
@@ -137,15 +145,24 @@
 				let url = this.$http + "/getAppDownloadUrl";
 				this.$axios.get(url).then((resp) => {
 					let urlDownl = resp.data.data.content;
-					// 调用浏览器打开下载页
-					let page = null;
-					page = {
-						imgUp: function() {
-							plus.runtime.openURL(urlDownl);
+					if (Number(resp.data.code !== -1)) {
+						// 调用浏览器打开下载页
+						let page = null;
+						page = {
+							imgUp: function() {
+								plus.runtime.openURL(urlDownl);
+							}
 						}
+						// 弹出系统选择按钮框
+						page.imgUp();
+					} else{
+						this.$notify({
+							title: '成功',
+							message: "已是最新版本",
+							type: 'success'
+						});
+						return true;
 					}
-					// 弹出系统选择按钮框
-					page.imgUp();
 				}).catch((err) => {
 					console.log("错误信息" + err);
 				})
@@ -189,7 +206,7 @@
 			border: none;
 			border-radius: 5px;
 			// background: rgb(157, 218, 129);
-			background: rgb(202, 235, 186);
+			background: #5888ef;
 			color: white;
 
 			span {

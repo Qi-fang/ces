@@ -146,13 +146,21 @@
 					}
 				}).then(res => {
 					plus.nativeUI.closeWaiting();
-					let n = localStorage.getItem("n");
-					let res_token = res.data.token;
-					localStorage.setItem("token", res_token);
-					if (n !== res.data.data.number) {
-						let n = res.data.data.number;
-						localStorage.setItem("n", n);
-						this.newList.push(res.data.data.content);
+					if(Number(res.data.code !== -1)){
+						let n = localStorage.getItem("n");
+						let res_token = res.data.token;
+						localStorage.setItem("token", res_token);
+						if (n !== res.data.data.number) {
+							let n = res.data.data.number;
+							localStorage.setItem("n", n);
+							this.newList.push(res.data.data.content);
+						}
+					} else {
+						this.$notify({
+							title: '提示',
+							message: res.data.message,
+							type: 'warning'
+						});
 					}
 				}).catch((e) => {
 					console.log("错误信息" + e);

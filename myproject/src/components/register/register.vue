@@ -90,7 +90,7 @@
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						let _account = this.$refs.r_account.value;
-						sessionStorage.setItem("_account", _account);
+						localStorage.setItem("_account", _account);
 						let _nickname = this.$refs.r_nickname.value;
 						let _passwd = this.$refs.password.value;
 						let _moneyPasswd = this.$refs.pword.value;
@@ -120,28 +120,36 @@
 						    }
 						}
 						this.$axios.post(url, data, config).then((res) => {
-							this.$axios.post(url1, data1, config).then((res1) => {
-								plus.nativeUI.closeWaiting();
-								const token = res1.data.token;
-								let _code = Number(res1.data.code);
-								window.localStorage.setItem('token', token);
-								if(_code !== -1){
-									this.$router.replace('/recommend');
-									this.$notify({
-										title: '成功',
-										message: '欢迎莅临',
-										type: 'success'
-									});
-								}else{
-									this.$notify({
-										title: '提示',
-										message: '登录失败，请重新登录',
-										type: 'warning'
-									});
-								}
-							}).catch((err)=>{
-								console.log("错误信息" + err);
-							})
+							if(Number(res.data.code) !== -1){
+								this.$axios.post(url1, data1, config).then((res1) => {
+									plus.nativeUI.closeWaiting();
+									const token = res1.data.token;
+									let _code = Number(res1.data.code);
+									window.localStorage.setItem('token', token);
+									if(_code !== -1){
+										this.$router.replace('/recommend');
+										this.$notify({
+											title: '成功',
+											message: '欢迎莅临',
+											type: 'success'
+										});
+									}else{
+										this.$notify({
+											title: '提示',
+											message: res1.data.message,
+											type: 'warning'
+										});
+									}
+								}).catch((err)=>{
+									console.log("错误信息" + err);
+								})
+							} else {
+								this.$notify({
+									title: '提示',
+									message: res.data.message,
+									type: 'warning'
+								});
+							}
 						})
 						.catch((err)=>{
 							console.log("错误信息" + err);
