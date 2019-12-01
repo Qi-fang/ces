@@ -119,6 +119,7 @@
 					return this.url = "../../assets/logo.png";
 				}
 			}).catch((err) => {
+				plus.nativeUI.closeWaiting();
 				console.log("错误信息" + err);
 			})
 		},
@@ -157,7 +158,7 @@
 						}else{
 							this.$notify({
 								title: '提示',
-								message: '今日已签到',
+								message: resp.data.message,
 								type: 'warning'
 							});
 						}

@@ -18,12 +18,15 @@
 				<el-form-item label="确认密码:" prop="r_cp">
 					<el-input class="r_cp" ref="r_cp" v-model="ruleForm.r_cp" placeholder="请再次输入登录密码" clearable show-password></el-input>
 				</el-form-item>
-				<el-form-item label="支付密码:" prop="pword">
-					<el-input class="pword" ref="pword" v-model="ruleForm.pword" placeholder="请输入支付密码" clearable show-password></el-input>
+				
+				<el-form-item label="手机号:" prop="phone1">
+					<el-input id="phone1" class="code1" ref="phone1" v-model="ruleForm.phone1" placeholder="请输入手机号码" clearable></el-input>
 				</el-form-item>
-				<el-form-item label="真实姓名:" prop="name">
-					<el-input class="name" ref="name" v-model="ruleForm.name" placeholder="请输入真实姓名" clearable></el-input>
+				<el-form-item id="code1" label="验证码:" prop="code1">
+					<el-input class="code1" ref="code1" v-model="ruleForm.code1" placeholder="验证码"></el-input>
+					<input id="phone_btn" class="ann" type="button" v-model="count" @click="btnCheck1">
 				</el-form-item>
+				
 				<el-form-item>
 					<el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
 					<el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -46,6 +49,7 @@
 				}
 			};
 			return {
+				count: '获取',
 				ruleForm: {
 					r_account: "",
 					r_nickname: '',
@@ -53,6 +57,8 @@
 					pword: "",
 					r_cp: "",
 					name: '',
+					phone1: "",
+					code1: ""
 				},
 				rules: {
 					r_account: [
@@ -80,10 +86,81 @@
 						{required: true, message: '请输入真实姓名', trigger: 'blur'},
 						{min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur'}
 					],
+					phone1: [{
+							required: true,
+							message: '请输入手机号码',
+							trigger: 'blur'
+						},
+						{
+							pattern: /^1[3456789]\d{9}$/,
+							message: '请输入11位手机号',
+							trigger: 'blur'
+						}
+					],
+					code1: [{
+							required: true,
+							message: '请输入验证码',
+							trigger: 'blur'
+						},
+						{
+							pattern: /^[0-9]{6}$/,
+							message: '请输入6位数的验证码',
+							trigger: 'blur'
+						}
+					],
 				}
 			}
 		},
 		methods: {
+			// ================华丽的分割线====================
+			//验证码按钮倒计时
+			btnCheck1() {
+				let _tel = this.$refs.phone1.value;
+				let reg = /^[1][3,4,5,7,8][0-9]{9}$/;
+				if (reg.test(_tel)) {
+					const TIME_COUNT = 60;
+					let url = this.$http + "/getSmsValidCode";
+					this.$axios.get(url, {
+						params:{tel: _tel}
+					}).then((resp) => {
+						let _code = Number(resp.data.code);
+						if (_code !== -1) {
+							this.$notify({
+								title: '成功',
+								message: resp.data.message,
+								type: 'success'
+							});
+							if (!this.timer) {
+								this.count = TIME_COUNT;
+								this.timer = setInterval(() => {
+									if (this.count > 1 && this.count <= TIME_COUNT) {
+										this.count--;
+									} else {
+										clearInterval(this.timer);
+										this.timer = null;
+										this.count = "获取";
+									}
+								}, 1000)
+							}
+						} else {
+							this.$notify({
+								title: '提示',
+								message: resp.data.message,
+								type: 'warning'
+							});
+						}
+					}).catch((err) => {
+						console.log("错误信息" + err);
+					})
+				} else {
+					this.$notify({
+						title: '提示',
+						message: "请正确输入手机号码",
+						type: 'warning'
+					});
+				}
+			},
+			
 			submitForm(formName) {
 				let wt = plus.nativeUI.showWaiting();
 				// 密码加密
@@ -91,20 +168,25 @@
 					if (valid) {
 						let _account = this.$refs.r_account.value;
 						localStorage.setItem("_account", _account);
-						let _nickname = this.$refs.r_nickname.value;
 						let _passwd = this.$refs.password.value;
-						let _moneyPasswd = this.$refs.pword.value;
-						let _realname = this.$refs.name.value;
-						localStorage.setItem("realname", _realname);
+						let _nickname = this.$refs.r_nickname.value;
+						let _phone1 = this.$refs.phone1.value;
+						let _code1 = this.$refs.code1.value;
 						let _code = "0";
 						
+						let smsValidCodeurl = this.$http + "/smsValidCode";
+						let _datasmsValidCode = {
+							account: _account,
+							code: _code1,
+						};
+						let datasmsValidCode = this.$qs.stringify(_datasmsValidCode);
 						let url = this.$http + "/reg";
 						let _data = {
 							account: _account,
 							passwd: _passwd,
-							moneyPasswd: _moneyPasswd,
+							tel: _phone1,
 							nickname: _nickname,
-							realname: _realname,
+							smsCode: _code1,
 							code: _code
 						};
 						let data = this.$qs.stringify(_data);
@@ -119,42 +201,55 @@
 						        'Content-Type': 'application/x-www-form-urlencoded'
 						    }
 						}
-						this.$axios.post(url, data, config).then((res) => {
-							if(Number(res.data.code) !== -1){
-								this.$axios.post(url1, data1, config).then((res1) => {
-									plus.nativeUI.closeWaiting();
-									const token = res1.data.token;
-									let _code = Number(res1.data.code);
-									window.localStorage.setItem('token', token);
-									if(_code !== -1){
-										this.$router.replace('/recommend');
-										this.$notify({
-											title: '成功',
-											message: '欢迎莅临',
-											type: 'success'
-										});
-									}else{
+						this.$axios.post(smsValidCodeurl, datasmsValidCode, config).then((resp) => {
+							plus.nativeUI.closeWaiting();
+							let _code = Number(resp.data.code);
+							if(_code !== -1){
+								this.$axios.post(url, data, config).then((res) => {
+									if(Number(res.data.code) !== -1){
+										this.$axios.post(url1, data1, config).then((res1) => {
+											const token = res1.data.token;
+											let _code = Number(res1.data.code);
+											window.localStorage.setItem('token', token);
+											if(_code !== -1){
+												this.$router.replace('/recommend');
+												this.$notify({
+													title: '成功',
+													message: '欢迎莅临',
+													type: 'success'
+												});
+											}else{
+												this.$notify({
+													title: '提示',
+													message: res1.data.message,
+													type: 'warning'
+												});
+											}
+										}).catch((err)=>{
+											console.log("错误信息" + err);
+										})
+									} else {
 										this.$notify({
 											title: '提示',
-											message: res1.data.message,
+											message: res.data.message,
 											type: 'warning'
 										});
 									}
 								}).catch((err)=>{
 									console.log("错误信息" + err);
 								})
-							} else {
+							}else{
 								this.$notify({
 									title: '提示',
-									message: res.data.message,
+									message: resp.data.message,
 									type: 'warning'
 								});
 							}
-						})
-						.catch((err)=>{
+						}).catch((err)=>{
 							console.log("错误信息" + err);
 						})
 					} else {
+						plus.nativeUI.closeWaiting();
 						console.log('error submit!!');
 						this.$message({
 							message: '注册失败，请重新注册',
@@ -209,7 +304,7 @@
 				top: 10px;
 				left: 10px;
 			}
-			.r_account, .r_nickname, .password, .r_cp, .name, .pword {
+			.r_account, .r_nickname, .password, .r_cp, .name, .pword, .code1{
 				max-width: 300px;
 				width: 95%;
 			}
@@ -221,5 +316,32 @@
 				font-size: 13px;
 			}
 		}
+	}
+	#code1 {
+		position: relative;
+		margin-top: 20px;
+		width: 96%;
+		#phone_btn {
+			position: absolute;
+			right: 0;
+			width: 70px;
+			height: 40px;
+			background: #909399;
+			border: none;
+			color: white;
+			border-radius: 5px;
+		}
+		
+		#phone_btn:focus {
+			outline: none;
+		}
+		
+		#phone_btn:active {
+			background: #409EFF;
+		}
+	}
+	.ann {
+		width: 70px;
+		height: 40px;
 	}
 </style>

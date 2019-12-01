@@ -6,7 +6,7 @@
 		</button>
 		
 		<button class="btn" type="info" plain @click="renz">
-			<span>用户认证</span>
+			<span>实名认证</span>
 			<i class="el-icon-arrow-right"></i>
 		</button>
 		
