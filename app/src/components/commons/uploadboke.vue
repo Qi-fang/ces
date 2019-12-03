@@ -1,16 +1,15 @@
 <template>
 	<div id="uploadboke" v-else>
-		<el-form :model="form" ref="ruleForm" label-width="70px" class="demo-ruleForm">
+		<el-form ref="ruleForm" label-width="70px" class="demo-ruleForm">
 			<div id="title">
 				<i class="el-icon-arrow-left" @click="gofriends"></i>
 				<el-button type="primary" @click="submitForm" style="width: 70px; height: 40px;">发布</el-button>
 			</div>
-			<el-input ref="text" class="textarea_content" placeholder="标题" v-model="text"></el-input>
 			<el-input ref="textarea" type="textarea" class="textarea_content" :rows="3" placeholder="这一刻的感想..." v-model="textarea">
 			</el-input>
 			<div id="upload">
-				<el-upload ref="upload" action="http://182.61.161.239:27070/restApi/postBlog" list-type="picture-card" :auto-upload='false' :limit="limit" :multiple="true" :on-exceed="handleExceed"
-				 :http-request="uploadFile" :file-list="fileList" :on-success="imgSuccess" :before-upload="beforeAvatarUpload" :on-change='changeUpload'>
+				<el-upload action="#" list-type="picture-card" :limit="limit" :multiple="true" :auto-upload="false" :on-exceed="handleExceed"
+				 :on-success="imgSuccess" :before-upload="beforeAvatarUpload" :on-change='changeUpload'>
 					<i slot="default" class="el-icon-plus avatar-uploader-icon"></i>
 					<div class="upload" slot="file" slot-scope="{file}">
 						<img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
@@ -36,41 +35,44 @@
 
 <script>
 	export default {
-		inject:['reload'],
 		data() {
 			return {
+				cityList1: [],
+				cityList20: [],
 				limit: 5,
-				text: '',
+				
 				textarea: '',
 				dialogImageUrl: '',
 				dialogVisible: false,
 				disabled_boke: false,
-				imageUrl: '',
-				form: {
-					file: [],
-				},
-				fileList: [],
+				imageUrl: ''
 			}
+		},
+		created() {
+			this.$axios.get('http://localhost:8081/test/city').then(res => {
+				if (res.data) {
+					let dat = res.data.cityList;
+					this.cityList1 = dat.slice(4, 5);
+					this.cityList20 = dat.slice(0, 20);
+				}
+			})
 		},
 		methods: {
 			//点击回到博客圈
 			gofriends() {
-				this.bock = true;
-				this.ub = false;
-				this.reload();
+				this.$router.replace('/friends');
 			},
 			//发布图片时校验
 			beforeAvatarUpload(file) {
 				const isJPG = file.type === 'image/jpeg';
-				// const isLt1M = file.size / 1024 / 1024 < 1;
+				const isLt2M = file.size / 1024 / 1024 < 2;
 				if (!isJPG) {
 					this.$message.error('上传头像图片只能是 JPG 格式!');
 				}
-				// if (!isLt1M) {
-				// 	this.$message.error('上传头像图片大小不能超过 1MB!');
-				// }
-				// return isJPG && isLt1M;
-				return isJPG;
+				if (!isLt2M) {
+					this.$message.error('上传头像图片大小不能超过 2MB!');
+				}
+				return isJPG && isLt2M;
 			},
 			//最多发布5张图片
 			handleExceed(files, fileList) {
@@ -114,84 +116,23 @@
 					});
 				});
 			},
-			
-			uploadFile(){
-				this.formDate.append('files', this.form.file);
+		
+			changeUpload: function(file, fileList) {
+				console.log(file);
 			},
-			changeUpload(file, fileList) {
-				switch (fileList.length) {
-					case 1:
-						this.form.file.push(fileList[0].raw);
-						break;
-					case 2:
-						this.form.file.push(fileList[1].raw);
-						break;
-					case 3:
-						this.form.file.push(fileList[2].raw);
-						break;
-					case 4:
-						this.form.file.push(fileList[3].raw);
-						break;
-					case 5:
-						this.form.file.push(fileList[4].raw);
-						break;
-					default:
-						console.log(6);
-						break;
-				}
-				let length = fileList.length
-				localStorage.setItem("length", length);
-			},
-			
+		
 			//发布博客
 			submitForm() {
-				let wt = plus.nativeUI.showWaiting();
-				let formdata = new FormData();
-				let _title = this.$refs.text.value;
-				let _content = this.textarea;
-				let _token = localStorage.getItem("token");
-				let postBlogurl = this.$http + "/postBlog";
-				let config = {
-					headers: {
-						"Content-Type": "multipart/form-data"
-					}
-				}
-				formdata.append("title", _title);
-				formdata.append("content", _content);
-				formdata.append("token", _token);
-				
-				for(var j = 0; j < localStorage.getItem("length"); j++){
-					formdata.append('files', this.form.file[j]);
-				}
-				// formdata.append("files", this.form.file);
-				if (_content.trim() !== "") {
-					// this.$refs.upload.submit();
-					this.$axios.post(postBlogurl, formdata, config).then((res) => {
-						plus.nativeUI.closeWaiting();
-						let _code = Number(res.data.code);
-						let res_token = res.data.token;
-						localStorage.setItem("token", res_token);
-						if(_code !== -1){
-							this.$notify({
-								title: '成功',
-								message: '发布成功',
-								type: 'success',
-							});
-							this.text = "";
-							this.textarea = "";
-							this.bock = true;
-							this.reload();
-							// this.$router.replace('/friends');
-						}else{
-							this.$notify({
-								title: '提示',
-								message: '发布失败',
-								type: 'warning'
-							});
-						}
-					}).catch((err) => {
-						console.log("错误信息" + err);
-					})
+				var boke_content = this.textarea;
+				console.log(boke_content);
+				if (boke_content.trim() !== "") {
+					this.$notify({
+						title: '成功',
+						message: '发布成功',
+						type: 'success',
+					});
+					this.textarea = "";
+					this.bock = true;
 				} else {
 					this.$notify({
 						title: '警告',
@@ -200,7 +141,6 @@
 					});
 				}
 			},
-			
 			// 这里可以获得上传成功的相关信息
 			imgSuccess(res, file, fileList) {
 				this.imageUrl = URL.createObjectURL(file.raw);
@@ -241,16 +181,15 @@
 			.textarea_content {
 				width: 90%;
 				margin: 0 auto;
-				margin-top: 15px;
 			}
 	
+			#upload {
+				width: 90%;
+				margin: 0 auto;
+				margin-top: 20px;
+				padding: 10px;
+				box-shadow: 0px 0px 8px 3px rgba(169, 169, 169, 0.3);
+			}
 		}
-	}
-	#upload {
-		width: 90%;
-		margin: 0 auto;
-		margin-top: 20px;
-		padding: 10px;
-		box-shadow: 0px 0px 8px 3px rgba(169, 169, 169, 0.3);
 	}
 </style>

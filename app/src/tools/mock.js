@@ -4,7 +4,7 @@ import Mock from 'mockjs'
 const Random = Mock.Random;
 // mock一组数据
 Mock.mock('http://localhost:8081/test/city', 'get', () => {
-	let citys = [];
+	let citys = []
 	for (let i = 0; i < 20; i++) {
 		let obj = {
 			ID: Random.natural(1, 100000), //模拟id
@@ -27,15 +27,12 @@ Mock.mock('http://localhost:8081/test/city', 'get', () => {
 			new_content: Random.csentence(1, 50),//活动内容详情
 			friends_title: Random.csentence(1, 15),//博客圈内容标题
 			friends_content: Random.csentence(1, 50),//博客圈内容详情
-			friends_number: Random.natural(1, 99),//博客圈点赞数
-			friends_message: Random.natural(1, 20),//博客圈评论数
-			message_content: Random.csentence(1, 50),//博客圈评论内容
 			friends_picture: Random.dataImage('90x90', 'mock的图片'), //模拟博客朋友圈图片
 			image: Random.dataImage('300x250', 'mock的图片'),//彩金兑换图片
 			bg: Random.dataImage('420x250', 'mock的图片'),//博客背景图
 			background: Random.dataImage('300x250', 'mock的图片'),//头像
 			picture: Random.dataImage('300x250', 'mock的图片'), // Random.dataImage( size, text ) 生成一段随机的 Base64 图片编码
-			token: Random.float(1.0, 10.0)
+			token: Random.natural(6, 12)
 		}
 		citys.push(obj)
 	}

@@ -1,156 +1,141 @@
 <template>
 	<div id="friends" class="animated fadeInLeft">
-		<!-- 博客圈 -->
 		<el-container v-if="bock" ref="scroll">
 			<el-header>博客圈</el-header>
-			<i class="el-icon-camera-solid el-icon--right boke" @click="show"></i>
+			<el-main>
+				<!-- 发布博客 -->
+				<i class="el-icon-camera-solid el-icon--right" @click="show"></i>
 
-			<ul class="list" v-for="fit1 in cityList1">
-				<li id='list' v-for="fit in fit1">
-					<!-- <div @click="myboke"> -->
-					<el-avatar :size="50" :src="fit.publisher.headImg" v-if="fit.publisher.headImg"></el-avatar>
-					<img src="../../assets/logo.png" style="width: 50px; height: 50px; border-radius: 50px;" v-if="!fit.publisher.headImg" />
-					<!-- </div> -->
+				<div v-for="item_bg in cityList1" :key="item_bg.ID">
+					<el-image :src="item_bg.bg"></el-image>
+				</div>
+				<el-row class="demo-avatar demo-basic">
+					<ul>
+						<li v-for="item in cityList1" :key="item.ID">
+							<div class="sub-title">{{item.cname}}</div>
+						</li>
+					</ul>
+					<div class="demo-basic--circle">
+						<div class="block" v-for="item_background in cityList1" :key="item_background.ID" @click="myboke">
+							<el-avatar :size="50" :src="item_background.background"></el-avatar>
+						</div>
+					</div>
+				</el-row>
+			</el-main>
+			<ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="disabled" infinite-scroll-distance="10">
+				<li id='list' v-for="item in filteredItems" class="infinite-list-item">
+					<div class="demo-basic--circle">
+						<div class="block" v-for="item_background in cityList1" :key="item_background.ID" @click="myboke">
+							<el-avatar :size="50" :src="item.background"></el-avatar>
+						</div>
+					</div>
 					<p class='cname' style='overflow: hidden;white-space: nowrap;text-overflow: ellipsis;'>
-						{{fit.publisher.nickname}}<br />
-						<span style="color: #A9A9A9; font-size: 12px;">
-							发布时间: {{fit.publishTime.slice(5, 10)}}日
-							{{fit.publishTime.slice(11, 13)}}点
-						</span>
+						{{item.cname}}<br />
+						{{item.date.slice(14)}}
 					</p>
 					<div class="friends">
 						<p class='friends_title' style='width: 85%; overflow: hidden;white-space: nowrap;text-overflow: ellipsis;'>
-							{{fit.title}}
+							{{item.friends_title}}
 						</p>
 						<div class='friends_content' style='width: 95%; overflow: hidden; text-overflow: ellipsis; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;'>
-							{{fit.content}}
+							{{item.friends_content}}
 						</div>
 					</div>
 					<div id="friends_picture">
-						<viewer class="viewer" ref="viewer">
-							<img class="friends_picture"
-							v-if="String(fit.imgs).indexOf('.jpg') > 0 ? true : false" :src="
-							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(0, 59) : fit.imgs
-							"></img>
-							<img class="friends_picture" 
-							v-if="String(fit.imgs).indexOf('.jpg', 60) > 0 ? true : false" :src="
-							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(60, 119) : fit.imgs
-							"></img>
-							<img class="friends_picture" 
-							v-if="String(fit.imgs).indexOf('.jpg', 120) > 0 ? true : false" :src="
-							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(120, 179) : fit.imgs
-							"></img>
-							<img class="friends_picture" 
-							 v-if="String(fit.imgs).indexOf('.jpg', 180) > 0 ? true : false" :src="
-							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(180, 239) : fit.imgs
-							"></img>
-							<img class="friends_picture" 
-							 v-if="String(fit.imgs).indexOf('.jpg', 240) > 0 ? true : false" :src="
-							String(fit.imgs).indexOf(',') ? String(fit.imgs).slice(240, 299) : fit.imgs
-							"></img>
-						</viewer>
-					</div>
-					<div class='pldz'>
-						<i class="el-icon-chat-line-round" @click="more($event)"> {{fit.commentsNumber}}<span style="color: white;">?{{fit.id}}</span></i>&nbsp;&nbsp;
-						<i class="el-icon-thumb" @click="dianz($event)"> {{fit.likeNumber}} <span style="color: white;">?{{fit.id}}</span></i>
+						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
+						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
+						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
+						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
+						<el-image class="friends_picture" :src="item.friends_picture"></el-image>
+						<el-image class="friends_picture" style="visibility: hidden;" :src="item.friends_picture"></el-image>
 					</div>
 				</li>
+				<br />
 			</ul>
+			<p v-if="loading">加载中...</p>
+			<p v-if="noMore">没有更多了</p>
 		</el-container>
 
-		<div id="pl" v-if="unbock">
-			<!-- 查看评论 -->
-			<div id="block">
-				<i class="el-icon-arrow-left returnf" @click="returnfriends">返回博客圈</i>
-				<div v-for="fit1 in blogCommentsList">
-					<div class="more_div" v-for="fit in fit1">
-						<p class="more_pl">
-							{{fit.publisher.nickname}} :
-							<!-- <span class='pldz_more'>
-								<i class="iconfont icon-Group-" @click="more_pl($event)">{{fit.commentsNumber}}</i>&nbsp;&nbsp;
-								<i class="iconfont icon-dianzan" @click="dianz($event)">{{fit.likeNumber}} 赞</i>
-							</span> -->
-						</p>
-						<p class="more_pl">
-							{{fit.content}}
-							<span style="color: #A9A9A9; font-size: 12px;">
-								发布时间: {{fit.publishTime.slice(5, 10)}}日
-								{{fit.publishTime.slice(11, 13)}}点
+		<div id="boke" v-else>
+			<el-form ref="ruleForm" label-width="70px" class="demo-ruleForm">
+				<div id="title">
+					<i class="el-icon-arrow-left" @click="gofriends"></i>
+					<el-button type="primary" @click="submitForm" style="width: 70px; height: 40px;">发布</el-button>
+				</div>
+				<el-input ref="textarea" type="textarea" class="textarea_content" :rows="3" placeholder="这一刻的感想..." v-model="textarea">
+				</el-input>
+				<div id="upload">
+					<el-upload action="#" list-type="picture-card" :limit="limit" :multiple="true" :auto-upload="false" :on-exceed="handleExceed"
+					 :on-success="imgSuccess" :before-upload="beforeAvatarUpload" :on-change='changeUpload'>
+						<i slot="default" class="el-icon-plus avatar-uploader-icon"></i>
+						<div class="upload" slot="file" slot-scope="{file}">
+							<img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
+							<span class="el-upload-list__item-actions">
+								<!-- 放大图片 -->
+								<span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
+									<i class="el-icon-zoom-in"></i>
+								</span>
+								<!-- 删除选中的图片 -->
+								<span v-if="!disabled_boke" class="el-upload-list__item-delete" @click="handleRemove(file, $event)">
+									<i class="el-icon-delete"></i>
+								</span>
 							</span>
-						</p>
-					</div>
+						</div>
+					</el-upload>
+					<el-dialog :visible.sync="dialogVisible" width="90%" append-to-body>
+						<img width="100%" :src="dialogImageUrl" alt="">
+					</el-dialog>
 				</div>
-
-				<div id='pl_more'>
-					<!-- 评论 -->
-					<el-form class="demo-form-inline fpl" v-if="fpl">
-						<el-input v-model="user" ref="user" placeholder="评论"></el-input>
-						<el-button class="ann" type="primary" @click="onSubmit">发送</el-button>
-					</el-form>
-					<div class="pl_more">
-						<i class="el-icon-chat-line-round" @click="more_pl($event)"></i>
-						<i class="el-icon-thumb" @click="dianz1($event)"></i>
-					</div>
-				</div>
-			</div>
+			</el-form>
 		</div>
-		<uploadboke v-if="ub"></uploadboke>
-		<router-view />
+
+		<!-- <router-view /> -->
 	</div>
 </template>
 
 <script>
 	import {
-		mapState,
-		mapMutations,
-		mapActions,
 		mapGetters
 	} from 'vuex'
-	import uploadboke from '../commons/uploadboke.vue'
 	export default {
-		components: {
-			uploadboke
-		},
-		inject: ['reload'],
 		data() {
 			return {
 				cityList1: [],
+				cityList20: [],
 				bock: true,
-				unbock: false,
-				ub: false,
 				count: 10,
 				loading: false,
-				friends_dianz: [],
-				more_message: false,
-				user: '',
-				text: '',
-				fpl: false,
-				blogCommentsList: [],
-				msg: 'vue2-viewer-test',
-				imageList: [
-					'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1550224739247&di=512032866bea6329b1e46c735d50ac8b&imgtype=0&src=http%3A%2F%2Fimglf2.ph.126.net%2FdHH6OM2rD8JucPGAotUfag%3D%3D%2F6608219914074710297.jpg',
-					'https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=488030022,1694816207&fm=173&app=25&f=JPEG?w=580&h=347&s=A08FB35A5E0616C664F5631C030010D6',
-					'https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=2574767313,3929397124&fm=173&app=25&f=JPEG?w=580&h=868&s=B784EEA3460236E17A1F137F0300A058'
-				]
+				limit: 5,
+
+				textarea: '',
+				dialogImageUrl: '',
+				dialogVisible: false,
+				disabled_boke: false,
+				imageUrl: ''
 			}
 		},
 		created() {
-			let wt = plus.nativeUI.showWaiting();
-			let _token = localStorage.getItem("token");
-			let blogListurl = this.$http + "/blogList";
-			this.$axios.get(blogListurl, {
-				params: {
-					token: _token,
-					pageNumber: 1,
-					pageSize: 20
+			this.$axios.get('http://localhost:8081/test/city').then(res => {
+				if (res.data) {
+					let dat = res.data.cityList;
+					this.cityList1 = dat.slice(4, 5);
+					this.cityList20 = dat.slice(0, 20);
 				}
-			}).then((res) => {
-				plus.nativeUI.closeWaiting();
-				this.cityList1.push(res.data.data.content);
-				this.url = localStorage.getItem("headurl");
-			}).catch((e) => {
-				console.log("错误信息" + e);
 			})
+		},
+		computed: {
+			...mapGetters([
+				"home_list_top" //vuex中的存放的滚动条的位置
+			]),
+			noMore() {
+				return this.count >= 20;
+			},
+			disabled() {
+				return this.loading || this.noMore;
+			},
+			filteredItems() {
+				return this.cityList20.slice(0, this.count);
+			}
 		},
 		methods: {
 			// 上拉加载更多
@@ -162,173 +147,123 @@
 				}, 2000)
 			},
 
-			//点赞
-			dianz(e) {
-				let wt = plus.nativeUI.showWaiting();
-				let postBlogLikeurl = this.$http + "/postBlogLike";
-				let subid = e.target.innerText;
-				let _blog_id = subid.substring(subid.lastIndexOf("?") + 1);
-				let _token = localStorage.getItem("token");
-				let _data = {
-					blog_id: _blog_id,
-					token: _token
-				}
-				let data = this.$qs.stringify(_data);
-				let config = {
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded'
-					}
-				}
-				this.$axios.post(postBlogLikeurl, data, config).then((resp) => {
-					plus.nativeUI.closeWaiting();
-					if (Number(resp.data.code) === -1) {
-						this.$notify({
-							title: '提示',
-							message: resp.data.message,
-							type: 'warning'
-						});
-					} else {
-						this.reload();
-					}
-				}).catch((err) => {
-					console.log("错误信息" + err);
-				})
-			},
-			//点赞1
-			dianz1(e) {
-				let wt = plus.nativeUI.showWaiting();
-				let postBlogLikeurl = this.$http + "/postBlogLike";
-				let _blog_id = sessionStorage.getItem("plid");
-				let _token = localStorage.getItem("token");
-				let _data = {
-					blog_id: _blog_id,
-					token: _token
-				}
-				let data = this.$qs.stringify(_data);
-				let config = {
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded'
-					}
-				}
-				this.$axios.post(postBlogLikeurl, data, config).then((resp) => {
-					plus.nativeUI.closeWaiting();
-					if (Number(resp.data.code) === -1) {
-						this.$notify({
-							title: '提示',
-							message: resp.data.message,
-							type: 'warning'
-						});
-					} else {
-						this.reload();
-					}
-				}).catch((err) => {
-					console.log("错误信息" + err);
-				})
-			},
-
-			// 更多评论
-			more(e) {
-				let wt = plus.nativeUI.showWaiting();
-				let _token = localStorage.getItem("token");
-				let subid = e.target.innerText;
-				let _blogId = subid.substring(subid.lastIndexOf("?") + 1);
-				let blogCommentsListurl = this.$http + "/blogCommentsList";
-				this.$axios.get(blogCommentsListurl, {
-					params: {
-						token: _token,
-						blogId: _blogId
-					}
-				}).then((res) => {
-					plus.nativeUI.closeWaiting();
-					let _code = Number(res.data.code);
-					if (_code !== -1) {
-						let pls = e.target.innerText;
-						this.friends_more = Number(pls.substring(0, pls.lastIndexOf("?")));
-						this.more_message = true;
-						this.bock = false;
-						this.unbock = true;
-						let _plid = _blogId;
-						sessionStorage.setItem("plid", _plid);
-						this.blogCommentsList.push(res.data.data);
-					} else {
-						this.$notify({
-							title: '提示',
-							message: '获取评论异常',
-							type: 'warning'
-						});
-					}
-				}).catch((e) => {
-					console.log("错误信息" + e);
-				})
-			},
-
-			// 评论
-			onSubmit() {
-				let wt = plus.nativeUI.showWaiting();
-				let _blog_id = sessionStorage.getItem("plid");
-				let _content = this.user;
-				let _token = localStorage.getItem("token");
-				let url = this.$http + "/postBlogComments";
-				let _data = {
-					content: _content,
-					blog_id: _blog_id,
-					token: _token
-				}
-				let data = this.$qs.stringify(_data);
-				let config = {
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded'
-					}
-				}
-				this.$axios.post(url, data, config).then((res) => {
-					plus.nativeUI.closeWaiting();
-					let _code = Number(res.data.code);
-					if (_code !== -1) {
-						this.$notify({
-							title: '提示',
-							message: res.data.message,
-							type: 'success'
-						});
-						this.fpl = false;
-						this.user = "";
-					} else {
-						this.$notify({
-							title: '提示',
-							message: res.data.message,
-							type: 'warning'
-						});
-					}
-				}).catch((err) => {
-					console.log("错误信息" + err);
-				})
-			},
-
-			more_pl(e) {
-				this.fpl = !this.fpl;
-			},
-
 			//点击进入发布动态
 			show() {
 				this.bock = false;
-				this.ub = true;
 				// this.$router.replace('/friends/boke');
 			},
-
 			//点击查看动态
 			myboke() {
 				this.$router.replace('/personal/myboke');
 			},
-			returnfriends() {
-				this.more_message = false;
-				this.bock = true;
-				this.unbock = false;
-				this.reload();
-			},
-
-			//点击查看动态
 			recordScrollPosition(e) {
 				this.$store.dispatch("setHomeListTop", e.target.scrollTop); //实时存入到vuex中
 			},
+			//点击回到博客圈
+			gofriends() {
+				this.bock = true;
+				// this.$router.replace('/friends');
+			},
+			//发布图片时校验
+			beforeAvatarUpload(file) {
+				const isJPG = file.type === 'image/jpeg';
+				const isLt2M = file.size / 1024 / 1024 < 2;
+				if (!isJPG) {
+					this.$message.error('上传头像图片只能是 JPG 格式!');
+				}
+				if (!isLt2M) {
+					this.$message.error('上传头像图片大小不能超过 2MB!');
+				}
+				return isJPG && isLt2M;
+			},
+			//最多发布5张图片
+			handleExceed(files, fileList) {
+				this.$message.warning(`当前限制选择 5 张照片`);
+			},
+			//放大图片
+			handlePictureCardPreview(file) {
+				this.dialogImageUrl = file.url;
+				this.dialogVisible = true;
+			},
+
+			//移除图片
+			handleRemove(file, e) {
+				let img_parentElement = document.getElementsByClassName("is-ready");
+				let length = img_parentElement.length;
+				for (let i = 0; i < length; i++) {
+					let a = img_parentElement[i];
+					a.index = i;
+					a.onclick = function() {
+						let index = this.index;
+						window.localStorage.setItem('index', index);
+					}
+				}
+				this.$confirm('确定要移除这张图片吗?', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					let indx = localStorage.getItem("index");
+					let delete_upload_img = document.getElementsByClassName("is-ready")[indx];
+					delete_upload_img.remove(file.name);
+					this.limit++;
+					this.$message({
+						type: 'success',
+						message: '删除成功!'
+					});
+				}).catch(() => {
+					this.$message({
+						type: 'info',
+						message: '已取消删除'
+					});
+				});
+			},
+
+			changeUpload: function(file, fileList) {
+				// this.fileList = fileList;
+				// this.$nextTick(
+				// 	() => {
+				// 		let upload_list_li = document.getElementsByClassName('el-upload-list')[0].children;
+				// 		for (let i = 0; i < upload_list_li.length; i++) {
+				// 			let li_a = upload_list_li[i];
+				// 			let imgElement = document.createElement("img");
+				// 			imgElement.setAttribute('src', fileList[i].url);
+				// 			imgElement.setAttribute('style', "width: 50px; height: 50px");
+				// 			if (li_a.lastElementChild.nodeName !== 'IMG') {
+				// 				li_a.appendChild(imgElement);
+				// 			}
+				// 		}
+				// 	});
+				console.log(file);
+			},
+
+			//发布博客
+			submitForm() {
+				var boke_content = this.textarea;
+				console.log(boke_content);
+				if (boke_content.trim() !== "") {
+					this.$notify({
+						title: '成功',
+						message: '发布成功',
+						type: 'success',
+					});
+					this.textarea = "";
+					this.bock = true;
+				} else {
+					this.$notify({
+						title: '警告',
+						message: '请输入想要发布的内容',
+						type: 'warning'
+					});
+				}
+			},
+			// 这里可以获得上传成功的相关信息
+			imgSuccess(res, file, fileList) {
+				this.imageUrl = URL.createObjectURL(file.raw);
+				console.log(res);
+				console.log(file);
+				console.log(fileList);
+			}
 		},
 		//this.$refs.scroll拿到滚动的dom，即scrollContainer，this.home_list_top是存入到vuex里的值
 		activated() {
@@ -367,20 +302,33 @@
 				line-height: 60px;
 			}
 
-			.boke {
-				position: absolute;
-				float: right;
-				right: 10px;
-				top: 17.5px;
-				color: white;
-				font-size: 25px;
-				z-index: 2;
+			.el-main {
+				position: relative;
+
+				i {
+					position: absolute;
+					float: right;
+					right: 10px;
+					top: 10px;
+					color: white;
+					font-size: 25px;
+					z-index: 2;
+				}
+
+				.el-row {
+					position: absolute;
+					float: right;
+					right: 0;
+					bottom: 0;
+					color: white;
+					display: flex;
+					justify-content: center;
+				}
 			}
 
 			#list {
 				width: 100%;
 				position: relative;
-				margin-bottom: 20px;
 
 				.cname {
 					position: absolute;
@@ -397,116 +345,48 @@
 					margin: 0 auto;
 					display: flex;
 					flex-wrap: wrap;
+					justify-content: space-between;
 
 					.friends_picture {
-						margin: 10px 10px;
-						width: 25vw;
-						height: 25vw;
-					}
-				}
-
-				.pldz {
-					width: 90vw;
-					display: flex;
-					justify-content: flex-end;
-					margin: 0 auto;
-				}
-
-				.pl {
-					width: 90vw;
-					height: 80px;
-					overflow: hidden;
-					margin: 0 auto;
-					border: 1px solid Gainsboro;
-					color: #999;
-					margin-top: 10px;
-					margin-bottom: 10px;
-					position: relative;
-					padding: 5px;
-
-					.more {
-						position: absolute;
-						width: 100%;
-						height: 20px;
-						text-align: center;
-						bottom: 0;
-						color: #ff6700;
-						background: white;
+						margin: 5px 0;
 					}
 				}
 			}
 		}
 
-		#pl {
+		#boke {
 			position: absolute;
 			right: 0;
 			top: 0;
 			bottom: 0;
 			left: 0;
-			overflow-y: scroll;
+			z-index: 3;
+			background: white;
 
-			#block {
-				position: absolute;
-				width: 100%;
-				min-height: 100%;
-				background: white;
-				z-index: 1000;
+			.demo-ruleForm {
 				display: flex;
 				flex-direction: column;
 
-				.returnf {
-					background: #E4E4E4;
-					width: 100%;
-					height: 40px;
-					color: white;
-					line-height: 40px;
+				#title {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					padding: 5px;
 				}
 
-				.more_div {
-					width: 90vw;
+				.textarea_content {
+					width: 90%;
 					margin: 0 auto;
-					margin-bottom: 35px;
-
-					.more_pl {
-						display: flex;
-						justify-content: space-between;
-						width: 100%;
-					}
 				}
 
-				#pl_more {
-					width: 100%;
-					background: Gainsboro;
-					position: fixed;
-					bottom: 0;
-
-					.fpl {
-						background: white;
-					}
-
-					.pl_more {
-						height: 35px;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-
-						i {
-							flex: 1;
-							font-size: 20px;
-							display: flex;
-							justify-content: center;
-							align-items: center;
-						}
-					}
+				#upload {
+					width: 90%;
+					margin: 0 auto;
+					margin-top: 20px;
+					padding: 10px;
+					box-shadow: 0px 0px 8px 3px rgba(169, 169, 169, 0.3);
 				}
 			}
 		}
-	}
-
-	.ann {
-		width: 70px;
-		height: 40px;
-		position: absolute;
-		right: 0;
 	}
 </style>
