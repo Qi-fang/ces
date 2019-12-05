@@ -1,7 +1,7 @@
 <template>
 	<div id="friends" class="animated fadeInLeft">
 		<!-- 博客圈 -->
-		<el-container v-if="bock" ref="scroll" v-infinite-scroll="load" infinite-scroll-disabled="disabled" >
+		<el-container v-if="bock" ref="scroll">
 			<i class="el-icon-search searchboke" @click="search"></i>
 			<el-header>博客圈</el-header>
 			<i class="el-icon-camera-solid el-icon--right boke" @click="show"></i>
@@ -143,9 +143,12 @@
 			}
 		},
 		created() {
-			this.getMessage();
+			this.getMessage()
 		},
 		computed: {
+			...mapGetters([
+				"home_list_top" //vuex中的存放的滚动条的位置
+			]),
 			noMore() {
 				return this.count >= this.totalPages - 1;
 			},
@@ -155,9 +158,6 @@
 			// filteredItems() {
 			// 	return this.cityList1.slice(0, 10);
 			// }
-			...mapGetters([
-				"home_list_top" //vuex中的存放的滚动条的位置
-			]),
 		},
 		methods: {
 			// 上拉加载更多

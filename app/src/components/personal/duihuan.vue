@@ -11,108 +11,84 @@
 		<div v-for="fit1 in newList">
 			<div class="bankcards" style="display: flex; justify-content: space-between;" v-for="fit in fit1">
 				<span>{{fit.transDate}}:{{fit.bankname}}</span>
-				<span>{{fit.transMoney}}</span>
+				<span>{{fit.transType == 0 ? "兑换 " : (fit.transType == 2 ? "推荐奖励 " : "签到奖励 ")}}: {{fit.transMoney}} 元</span>
 			</div>
 		</div>
-		<div v-for="fit1 in newList2">
-			<div class="bankcards" style="display: flex; justify-content: space-between;" v-for="fit in fit1">
-				<span>{{fit.transDate}}:{{fit.bankname}}</span>
-				<span>{{fit.transMoney}}</span>
-			</div>
-		</div>
-		<div v-for="fit1 in newList3">
-			<div class="bankcards" style="display: flex; justify-content: space-between;" v-for="fit in fit1">
-				<span>{{fit.transDate}}:{{fit.bankname}}</span>
-				<span>{{fit.transType == 0 ? "兑换 " : (fit.transType == 2 ? "推荐奖励 " : "签到奖励 ")}}:{{fit.transMoney}}</span>
-			</div>
+		<div id="pagination">
+			<el-pagination background layout="prev, pager, next" :page-size="8" :total="total" pager-count="3" 
+			@current-change="handleCurrentChange" :current-page="currentPage"></el-pagination>
 		</div>
 	</div>
 </template>
 
 <script>
 	import { mapState, mapMutations } from 'vuex';
+	let _token = localStorage.getItem("token");
 	export default {
 		data() {
 			return {
 				newList: [],
-				newList2: [],
-				newList3: [],
+				total: 0,
+				tl: 0,
+				t2: 0,
+				t3: 0,
+				currentPage: 1, //起始页
 			}
 		},
 		created() {
 			let wt = plus.nativeUI.showWaiting();
-			let _token = localStorage.getItem("token");
-			let _transType = 0;
-			let url = this.$http + "/getMyMoneyTrans";
-			this.$axios.get(url, {
-				params: {token: _token, transType: _transType, pageNumber: 1, pageSize: 20}
-			}).then((res) => {
-				let _code = Number(res.data.code);
-				let res_token = res.data.token;
-				localStorage.setItem("token", res_token);
-				if(_code !== -1){
-					this.newList.push(res.data.data.content);
-					return true;
-				} else {
-					console.log('error submit!!');
-					this.$message({
-						title: '提示',
-						message: res.data.message,
-						type: 'warning'
-					});
-					return false;
-				}
-			}).catch((e) => {
-				console.log("错误信息" + e);
-			})
-			
-			let _transType2 = 2;
-			this.$axios.get(url, {
-				params: {token: _token, transType: _transType2, pageNumber: 1, pageSize: 20}
-			}).then((res) => {
-				let _code = Number(res.data.code);
-				if(_code !== -1){
-					this.newList2.push(res.data.data.content);
-					return true;
-				} else {
-					console.log('error submit!!');
-					this.$message({
-						title: '提示',
-						message: res.data.message,
-						type: 'warning'
-					});
-					return false;
-				}
-			}).catch((e) => {
-				console.log("错误信息" + e);
-			})
-			
-			let _transType3 = 3;
-			this.$axios.get(url, {
-				params: {token: _token, transType: _transType3, pageNumber: 1, pageSize: 20}
-			}).then((res) => {
-				plus.nativeUI.closeWaiting();
-				let _code = Number(res.data.code);
-				if(_code !== -1){
-					this.newList3.push(res.data.data.content);
-					return true;
-				} else {
-					console.log('error submit!!');
-					this.$message({
-						title: '提示',
-						message: res.data.message,
-						type: 'warning'
-					});
-					return false;
-				}
-			}).catch((e) => {
-				console.log("错误信息" + e);
-			})
+			this.getMessage();
 		},
 		methods: {
 			gopersonal() {
 				this.$router.replace('/personal');
 			},
+			handleCurrentChange(val){
+				this.currentPage = val;
+				this.newList = [];
+				this.getMessage();
+			},
+			getMessage(){
+				let url = this.$http + "/getMyMoneyTrans";
+				for(let tt = 0; tt < 4; tt++){
+					if(tt == 1){
+						continue;
+					}
+					this.$axios.get(url, {
+						params: {token: _token, transType: tt, pageNumber: this.currentPage, pageSize: 8}
+					}).then((res) => {
+						plus.nativeUI.closeWaiting();
+						let _code = Number(res.data.code);
+						let res_token = res.data.token;
+						localStorage.setItem("token", res_token);
+						if(_code !== -1){
+							if(tt == 0){
+								this.tl = res.data.data.totalElements
+							}
+							if(tt == 2){
+								this.t2 = res.data.data.totalElements
+							}
+							if(tt == 3){
+								this.t3 = res.data.data.totalElements
+							}
+							this.total = (this.tl + this.t2 + this.t3);
+							this.newList.push(res.data.data.content);
+							return true;
+						} else {
+							console.log('error submit!!');
+							this.$message({
+								title: '提示',
+								message: res.data.message,
+								type: 'warning'
+							});
+							return false;
+						}
+					}).catch((e) => {
+						plus.nativeUI.closeWaiting();
+						console.log("错误信息" + e);
+					})
+				}
+			}
 		},
 	}
 </script>
@@ -168,6 +144,12 @@
 			background: linear-gradient(to right, #808080 0%, #DCDCDC 100%);
 			margin: 20px auto;
 			color: white;
+		}
+		#pagination{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-bottom: 15px;
 		}
 	}
 </style>

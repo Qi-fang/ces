@@ -89,7 +89,7 @@
 		},
 		methods: {
 			gopersonal(){
-				this.$router.replace('/personal/category');
+				this.$router.replace('/personal/renz');
 			},
 			add(){
 				this.show_addBankcards = true;

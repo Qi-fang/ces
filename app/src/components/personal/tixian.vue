@@ -7,8 +7,8 @@
 			</div>
 			<div class="title" v-if="!tx_hide">提现</div>
 			<div class="title" v-if="tx_hide">提现记录</div>
-			<div class="right" @click="getMyMoneyTrans" v-if="tx_show">提现记录</div>
-			<div class="right" @click="getMyMoneyTrans" v-if="!tx_show">提现</div>
+			<div class="right" @click="getMyMoneyTrans" v-if="tx_hide">提现</div>
+			<div class="right" @click="getMyMoneyTrans" v-if="!tx_hide">提现记录</div>
 		</div>
 		<div id="tx_center" v-if="tx_show">
 			<el-form :model="ruleForm2" :rules="rules" ref="ruleForm2" label-width="90px" class="demo-ruleForm2">
@@ -35,14 +35,19 @@
 		<div v-for="(fit1, index) in newList" :key="index">
 			<div class="bankcards" style="display: flex; justify-content: space-between;" v-for="fit in fit1" v-if="!tx_show">
 				<span>{{fit.transDate}}:{{fit.bankname}}</span>
-				<span>{{fit.transMoney}}</span>
+				<span>提现：{{fit.transMoney}} 元</span>
 			</div>
+		</div>
+		<div id="pagination" v-if="!tx_show">
+			<el-pagination background layout="total, prev, pager, next" :page-size="20" :total="total" 
+			@current-change="handleCurrentChange" :current-page="currentPage"></el-pagination>
 		</div>
 	</div>
 </template>
 
 <script>
 	import { mapState, mapMutations } from 'vuex';
+	let _token = localStorage.getItem("token");
 	export default {
 		data() {
 			return {
@@ -52,6 +57,9 @@
 				tx_show: true,
 				tx_hide: false,
 				convertm: 0,
+				total: 0,
+				pageSize: 0,
+				currentPage: 1, //起始页
 				ruleForm2: {
 					txcharge: '',
 					transaction: '',
@@ -97,7 +105,6 @@
 		created() {
 			let url = this.$http + "/getMyBankcards";
 			let url1 = this.$http + "/getMyInfo";
-			let _token = localStorage.getItem("token");
 			this.$axios.get(url, {
 				params: {
 					token: _token
@@ -134,25 +141,34 @@
 			//提现记录
 			getMyMoneyTrans() {
 				let wt = plus.nativeUI.showWaiting();
-				this.tx_show = !this.tx_show;
-				this.tx_hide = !this.tx_hide;
-				let _token = localStorage.getItem("token");
+				this.tx_hide = true;
+				this.tx_show = false;
 				let _transType = 1;
 				let url = this.$http + "/getMyMoneyTrans";
 				this.$axios.get(url, {
 					params: {
 						token: _token,
-						transType: _transType, pageNumber: 1, pageSize: 20
+						transType: _transType, pageNumber: this.currentPage, pageSize: 20
 					}
 				}).then(res => {
 					plus.nativeUI.closeWaiting();
-					let n = localStorage.getItem("n");
-					let res_token = res.data.token;
-					localStorage.setItem("token", res_token);
-					if (n !== res.data.data.number) {
-						let n = res.data.data.number;
-						localStorage.setItem("n", n);
-						this.newList.push(res.data.data.content);
+					this.total = res.data.data.totalElements;
+					if(Number(res.data.code !== -1)){
+						let n = localStorage.getItem("n");
+						let res_token = res.data.token;
+						localStorage.setItem("token", res_token);
+						if (n !== res.data.data.number) {
+							let n = res.data.data.number;
+							localStorage.setItem("n", n);
+							this.newList = [];
+							this.newList.push(res.data.data.content);
+						}
+					} else {
+						this.$notify({
+							title: '提示',
+							message: res.data.message,
+							type: 'warning'
+						});
 					}
 				}).catch((e) => {
 					console.log("错误信息" + e);
@@ -167,19 +183,14 @@
 			
 			//提现
 			converttransaction(ruleForm2) {
-				// 密码加密
-				let sha256 = require("js-sha256").sha256;
-				this.pw = sha256(this.$refs.transaction.value);
-
 				//提交
 				this.$refs[ruleForm2].validate((valid) => {
 					if (valid) {
 						let url = this.$http + "/postTransRecord";
-						let _moneyPasswd = this.pw;
+						let _moneyPasswd = this.$refs.transaction.value;
 						let _transMoney = this.ruleForm2.recharge;
 						let _transType = 1;
 						let _bankCards_id = localStorage.getItem("label_value");
-						let _token = localStorage.getItem("token");
 						let _data = {
 							moneyPasswd: _moneyPasswd,
 							transMoney: _transMoney,
@@ -222,6 +233,14 @@
 						})
 					}
 				});
+			},
+			handleCurrentChange(val){
+				this.currentPage = val;
+				this.tx_hide = true;
+				this.tx_show = false;
+				this.getMyMoneyTrans();
+				this.tx_hide = true;
+				this.tx_show = false;
 			},
 		},
 	}
@@ -300,6 +319,12 @@
 			background: linear-gradient(to right, #808080 0%, #DCDCDC 100%);
 			margin: 20px auto;
 			color: white;
+		}
+		#pagination{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-bottom: 15px;
 		}
 	}
 

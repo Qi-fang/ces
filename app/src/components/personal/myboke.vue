@@ -1,8 +1,8 @@
 <template>
 	<div id="myboke">
 		<el-main id="myboke_header" v-if="!ub">
-			<div class="title">
-				<i class="el-icon-arrow-left" @click="gofriends"></i>
+			<div class="title" @click="gofriends">
+				<i class="el-icon-arrow-left"></i>
 				<span class="myboke">我的博客</span>
 			</div>
 			<div v-for="item_bg in cityList1" :key="item_bg.ID">
@@ -74,6 +74,7 @@
 		methods: {
 			gofriends() {
 				this.ub = "false";
+				this.$router.replace('/friends');
 			},
 			show() {
 				this.ub = true;
@@ -97,7 +98,7 @@
 		position: absolute;
 		right: 0;
 		top: 0;
-		bottom: 50px;
+		bottom: 0;
 		left: 0;
 		#myboke_header{
 			background: white;

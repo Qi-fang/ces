@@ -88,12 +88,6 @@
 					<el-button class="ann" type="primary" @click="set('ruleForm3')">修 改</el-button>
 				</span>
 			</el-dialog>
-
-			<!-- 我的银行卡 -->
-			<button class="btn" type="info" plain @click="mbcs">
-				<span>我的银行卡</span>
-				<i class="el-icon-arrow-right"></i>
-			</button>
 		</div>
 	</div>
 </template>
@@ -283,12 +277,12 @@
 			//验证码按钮倒计时
 			btnCheck1() {
 				let _tel = this.$refs.phone1.value;
-				if (_tel == /^[1][3,4,5,7,8][0-9]{9}$/) {
+				let reg = /^[1][3,4,5,7,8][0-9]{9}$/;
+				if (reg.test(_tel)) {
 					const TIME_COUNT = 60;
 					let url = this.$http + "/getSmsValidCode";
-					let _token = localStorage.getItem("token");
 					this.$axios.get(url, {
-						params:{tel: _tel, token: _token}
+						params:{tel: _tel}
 					}).then((resp) => {
 						let _code = Number(resp.data.code);
 						if (_code !== -1) {
@@ -297,6 +291,18 @@
 								message: resp.data.message,
 								type: 'success'
 							});
+							if (!this.timer) {
+								this.count = TIME_COUNT;
+								this.timer = setInterval(() => {
+									if (this.count > 1 && this.count <= TIME_COUNT) {
+										this.count--;
+									} else {
+										clearInterval(this.timer);
+										this.timer = null;
+										this.count = "获取";
+									}
+								}, 1000)
+							}
 						} else {
 							this.$notify({
 								title: '提示',
@@ -307,18 +313,6 @@
 					}).catch((err) => {
 						console.log("错误信息" + err);
 					})
-					if (!this.timer) {
-						this.count = TIME_COUNT;
-						this.timer = setInterval(() => {
-							if (this.count > 1 && this.count <= TIME_COUNT) {
-								this.count--;
-							} else {
-								clearInterval(this.timer);
-								this.timer = null;
-								this.count = "获取";
-							}
-						}, 1000)
-					}
 				} else {
 					this.$notify({
 						title: '提示',
@@ -385,7 +379,7 @@
 				//提交
 				this.$refs[formName1].validate((valid) => {
 					if (valid) {
-						let _newpasswd = this.$refs.new_transaction.valuet;
+						let _newpasswd = this.$refs.new_transaction.value;
 						let _token = localStorage.getItem("token");
 						let url = this.$http + "/changeMoneyPasswd";
 						let _data = {
@@ -444,7 +438,7 @@
 				this.$refs[formName3].validate((valid) => {
 					if (valid) {
 						let _newpasswd = this.$refs.new_password.value;
-						let _account = sessionStorage.getItem("_account");
+						let _account = localStorage.getItem("_account");
 						let url = this.$http + "/changePasswd";
 						let _data = {
 							newpasswd: _newpasswd,
@@ -493,11 +487,6 @@
 			resetForm(formName) {
 				this.$refs[formName].resetFields();
 			},
-
-			//我的银行卡
-			mbcs() {
-				this.$router.replace('/personal/mybankcards');
-			}
 		}
 	}
 </script>
@@ -548,7 +537,7 @@
 				border: none;
 				border-radius: 5px;
 				// background: rgb(157, 218, 129);
-				background: rgb(202, 235, 186);
+				background: #4d80e6;
 				color: white;
 			
 				span {
